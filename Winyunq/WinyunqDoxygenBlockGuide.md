@@ -12,192 +12,210 @@
 
 **与 Doxygen 的关系：** 使用 Doxygen 兼容标签，但格式规则优先。
 
-## 2. Winyunq DocBlock 的基本构成与边界
+## 2. Winyunq DocBlock 的基础形态与 T0 基准
 
-1.  **起始标记:** `/**` (顶格，不参与外部代码缩进)。
-2.  **内容行:** 每行以 ` * ` (标准的`/** ... **/` 块注释) 开始。
-3.  **结束标记:** `**/` (标准的`/** ... **/` 块注释)。
+本章详细描述 WinyunqDoxygen Block 的基本构成元素、其在代码文件中的绝对定位，以及在不包含任何特殊 `@tag` 命令时，其内部内容的默认排版规则——即 **T0 基准 (T0 Baseline)** 或 **默认文档流**。
+
+### 2.1 块的边界标记
+
+1.  **起始标记:** `/**`
+    *   **定位：** 必须位于其所在物理代码行的**第1列**（顶格）。
+    *   **原则：** **绝不参与**其所注释的 C++ 代码元素的任何外部缩进。此为“清除一切左侧缩进”的体现。
+2.  **结束标记:** `**/`
+    *   **定位：** 必须位于其所在物理代码行的**第1列**（顶格）。
+    *   **原则：** 同起始标记，绝不参与外部代码缩进。
+
+### 2.2 内容行的固定前缀
+
+*   在 `/**` 和 `**/` 标记之间的每一个实际内容行，都必须以 ` * ` (一个星号，后跟一个空格) 作为其固定前缀。
+*   **列定位：**
+    *   星号 `*`：位于该物理行的**第2列**。
+    *   星号后的空格：位于该物理行的**第3列**。
+*   这个 ` * ` 前缀是每行内容的视觉边界和结构基础。
+
+### 2.3 T0 基准下的默认文档流 (纯 Markdown 内容)
+
+当 WinyunqDoxygen Block 仅包含纯描述性文本时（即没有 `@tag` 命令），其内部内容遵循 T0 基准，表现为一个标准的 Markdown 文档流。
+
+1.  **内容起始点 (T0 Content Origin):**
+    *   所有纯描述文本的第一个字符，**必须**紧随其所在行的 ` * ` 前缀之后开始。
+    *   **精确列定位：** 这意味着每一行纯描述文本的**第一个有效字符都位于该物理行的第4列**。
+2.  **换行规则:**
+    *   当描述文本需要换行时，新的一行同样遵循上述规则，其第一个字符也从第4列的 T0 Content Origin 开始。
+    *   **不存在**基于前一行的“继承式缩进”。
+3.  **Markdown 语法兼容:**
+    *   允许并推荐在遵循 T0 Content Origin 的前提下，在纯文本描述中使用标准的 Markdown 语法（如段落、列表、强调、代码片段等）。Markdown 自身的缩进规则（如列表项下的段落缩进）是相对于 T0 Content Origin 计算的。
+
+**表格：DocBlock 结构与 T0 默认文档流的逻辑关系**
+
+| 代码环境外部缩进状态  | Winyunq DocBlock 结构元素 (物理列位置) | 内部有效内容区域 (T0 Content Origin)  |
+| :------------------- | :----------------------------------- | :------------------------------------ |
+| **Clean** (无视外部) | `/**` (第1列)                        | (边界标记，无直接内容)                |
+| **Clean** (无视外部) | ` * ` (`*`在2列, ` `在3列)          | **第4列开始** (Markdown 流的第一行) |
+| **Clean** (无视外部) | ` * ` (`*`在2列, ` `在3列)          | **第4列开始** (Markdown 流的中间N行)|
+| **Clean** (无视外部) | ` * ` (`*`在2列, ` `在3列)          | **第4列开始** (Markdown 流的最后一行)|
+| **Clean** (无视外部) | `**/` (第1列)                        | (边界标记，无直接内容)                |
+
+正如在markdown中，可以按照`,`,`.`,`，`,`。`换行，因此，对于Markdown注释中，换行依据同样也是如此。
+
+**示例：纯 Markdown 内容的 Winyunq DocBlock**
 
 ```cpp
 /**
+ * This is the first line of a pure Markdown description.
+ * Its content, like this 'I', starts at column 4.
  *
+ * We can include:
+ * - Unordered list item 1.
+ *   - Nested list item 1.1 (Markdown's own indent from col 4).
+ * - Unordered list item 2.
  *
- **/
-```
-*   **目的:** `/**` 和 `**/` 顶格界定块范围。` * ` 是每一内容行的固定前缀，其后的所有内容都基于此起点进行排版。AI你需要自行注意：`/** ... **/` 块注释中的`**/`很容易被识别为加粗，如果阅读时有疑惑需要思考是否是两个星号被转译了。
-
-## 3. 核心排版规则：Markdown 基础与 `@tag` 特殊行处理 (强制)
-
-本节定义了内部内容的精确排版。所有定位和对齐**必须**通过计算并填充**空格**实现。**禁止**使用 `Tab`。
-
-### 3.1 默认文本流：Markdown 行为 (强制)
-
-*   **基础定位:** 在 Winyunq DocBlock 内部，所有**纯描述性文本**（即不属于 `@tag` 命令本身的部分）的第一个字符，**必须**紧随其所在行的行起始符 ` * ` 之后开始（即从该行的**第 3 个字符位置**开始）。即正常**不参与缩进**的换行。
-    *   格式: ` * TextFlowsNaturallyFromHere`
-*   **换行即新行:** 当文本内容需要换行时（无论是 `@tag` 后的描述文本还是独立的纯文本段落），**新的一行总是重新从默认的文本起始位置（紧随 `* `）开始**。不存在基于前一行的“继承式缩进”。
-    *   **可以理解为：** 每一个 ` * ` 之后都是一个新的 Markdown 行的开始。
-*   **Markdown 语法兼容:** 允许并推荐在纯文本中使用标准 Markdown 标记（如强调、列表、链接）和 LaTeX 公式。这些标记应自然地嵌入从第 3 字符位置开始的文本流中。
-*   **句子换行建议:** 为保持可读性，推荐在句子结束标志（如 `.`,`。`）后进行文本换行。
-*   **效果:** 这是块内文本最自然、最基础的左对齐流，完全符合 Markdown 的行行为。
-*   **注意:**正因为将**WinyunqDoxygen Block** (`/** ... **/` 块注释)视为**写在代码中的readme.md**，所以**WinyunqDoxygen Block** (`/** ... **/` 块注释)**绝不缩进**
-
-### 3.2 `@tag` (信息标记)：Markdown 流中的特殊指令与层级定位
-
-`@tag` 命令是 Doxygen 引入的、用于标记特定语义信息的特殊指令。在 Winyunq 风格中，我们将 `@tag` 视为对基础 Markdown 文本流的一种**结构化标记**，其定位规则模拟了 Markdown 嵌套列表的视觉层级感。
-
-**`@tag` 的核心行为与定位规则 (强制):**
-
-1.  **`@tag` 定义:**  `@tag` 类似于 Markdown 的列表项标记或标题标记，它标志着一个新的结构化信息单元的开始。因此，`@tag`存在层级，**每个层级相差一个空格**（非缩进。仅仅是类似于首行空格）。
-2.  **层级示例:** `@tag` 的逻辑层级（由主《WinyunqStyleGuide.md》根据语义定义）通过其 `@` 符号相对于行起始符 `* ` 的**固定前导空格数**在视觉上体现。这**仅定位 `@` 符号本身**。
-    *   **一级 `@tag` (Level 0):** ` * ` + **0 前导空格** + `@tag` (`@` 在第 3 字符位置，无空格)
-        *   格式: `* @tag`
-    *   **二级 `@tag` (Level 1):** ` * ` + **1 前导空格** + `@tag` (`@` 在第 4 字符位置，1空格)
-        *   格式: `*  @tag`
-    *   **三级 `@tag` (Level 2):** ` * ` + **2 前导空格** + `@tag` (`@` 在第 5 字符位置，2空格)
-        *   格式: `*   @tag`
-    *   **AI 实现提示:** 当接收到生成某个层级 `@tag` 的指令时，必须精确地在 ` * ` 后插入对应数量 (0, 1, 或 2) 的空格，然后再附加 `@` 和标签关键字。
-
-3.  **`@tag` 不影响后续行的默认文本流:** `@tag` 的层级定位**仅作用于 `@tag` 关键字本身**。它**不会**改变后续文本行，作为markdown内容，仅仅补充空格，不存在“行内缩进”
-
-**目的 (Purpose):** 将 `@tag` 定义为 Markdown 流中的特殊结构标记，其层级通过精确的前导空格（而非传统缩进）表示，同时明确其定位仅影响自身，不干扰后续行的基础排版。这为后续定义 `@tag` 行内文本的特殊排版奠定了基础。
-
-### 3.3 `@tag` 行基础结构与首段文本对齐
-
-所有包含 `@tag` 命令的行，其基础结构可以抽象地表示为：
-
-`@[TagMarkerString]<CalculatedPaddingSpaces>{FirstPieceOfText}`
-
-其中：
-
-1.  **`[TagMarkerString]` (标签标记部分):**
-    *   **构成:** 由Doxygen命令 `@` 符号后的具体的 Doxygen 命令关键字 (如 `brief`, `param`) 组成。
-    *   **示例:** `brief`, `details`, `note`。
-    *   **长度:** 在计算填充空格时，需要获取 `[TagMarkerString]` 的实际显示长度（以字符计），记为 `lengthTagMarker`。
-
-2.  **`<CalculatedPaddingSpaces>` (填充空格部分):**
-    *   **目的:** 用于将紧随其后的 `{FirstPieceOfText}` 的起始位置精确对齐到 Winyunq 定义的“内容版心”。
-    *   **计算规则 (强制):**
-        *   **核心布局参数:**
-            *   `winyunq.targetCharOffsetTagFirstLineText = 15` (目标字符偏移量，从行首第 1 个字符计)
-            *   `winyunq.minSpacesAfterTagKeyword = 1` (最小空格数)
-        *   **计算公式:**
-            1.  `numSpacesToPad = winyunq.targetCharOffsetTagFirstLineText - lengthTagMarker`
-            2.  若 `numSpacesToPad < winyunq.minSpacesAfterTagKeyword`，则 `numSpacesToPad = winyunq.minSpacesAfterTagKeyword`。
-        *   **应用:** 在 `TagMarkerString` 之后，**必须**填充 `numSpacesToPad` 个空格。
-
-3.  **`{FirstPieceOfText}` (首段核心文本部分):**
-    *   **内容:** 这是与 `@tag` 直接关联的核心文本内容。
-        *   对于普通 `@tag` (如 `@details`, `@note`)，它是该标签的描述文本。
-        *   对于 `@param`,`@tparam`,`@return`，它是 `{ParameterName} <CalculatedPaddingSpaces2> @ref {ReferencedType}`整体。
-        *   对于 `@extends`，它是 `"{visibility} {baseClassName}"`。
-    *   **定位:** 其第一个字符紧随 `<CalculatedPaddingSpaces>` 之后，起始于从行首计的第 `winyunq.targetCharOffsetTagFirstLineText` 个字符位置（即对齐到特定行个字符）。
-    *   **后续行处理:** `@tag`仅仅是特殊的markdown语法，**不含缩进**,如果 `{FirstPieceOfText}` 或其后的描述需要换行，所有后续文本行严格遵循 **3.1 节的默认文本流定位**（从第 3 字符位置开始）。
-
-
-### 3.4 特定 `@tag` 的 `{FirstPieceOfText}` 结构化实现
-
-在3.3的基础上，确定了`@tag`与`{FirstPieceOfText}`中间的空格数量。对于某些特定的 `@tag`（例如 `@param`, `@tparam`, `@return`, `@extends` 等），其在 3.3 节中定义的 `{FirstPieceOfText}` 部分往往可以进一步结构化，以包含额外的信息（如类型引用、可见性等），并可能涉及额外的内部对齐计算。
-
-本节描述这些特定 `@tag` 的 `{FirstPieceOfText}` 的结构化实现方式。对于其他`@tag`**忽略此内容**
-
-**核心布局参数 (用于结构化 `{FirstPieceOfText}` 内部的对齐):**
-
-*   `winyunq.targetCharOffset_AdditionalInfoStart_RelativeTo_FirstPieceTextStart = 20`
-    *   **定义:** (例如) 附加信息（如 `@ref 类型`）的第一个字符，相对于 `{FirstPieceOfText}` 中核心内容（如参数名）**起始位置**的目标**相对字符偏移量**。
-*   `winyunq.minSpaces_BetweenNameAndRef = 1`
-    *   **定义:** 核心文本（名称）与追加的 `@ref` 关键字之间的**最小**空格数。
-*   `winyunq.minSpaces_AfterRefKeyword = 1`
-    *   **定义:** `@ref` 关键字与其后的类型文本之间的**最小**空格数。
-
-**规则 D: `@param`,`@tparam`,`@return` 的 `{FirstPieceOfText}` 结构化**
-
-对于 `@param` 和 `@tparam` 标签，其 `{FirstPieceOfText}` 部分被结构化为：
-
-`{ParameterName} <CalculatedPaddingSpaces2> @ref {ReferencedType}`
-
-其中：
-
-1.  **`{ParameterName}`:** 这是从代码中提取的实际参数或模板参数名称。它紧随 3.3 节计算出的 `<CalculatedPaddingSpaces1>` 之后开始，其起始位置已对齐到“内容版心” (`winyunq.targetCharOffsetTagFirstLineText`)。记录 `{ParameterName}` 的显示长度 `len_ParamName`。
-
-2.  **`<CalculatedPaddingSpaces2>`:** 这是在 `{ParameterName}` 和 `@ref` 关键字之间需要填充的空格。
-    *   **计算:**
-        *   `@ref` 关键字的目标起始位置（相对于 `{ParameterName}` 的起始位置）是 `winyunq.targetRelativeOffset_AdditionalInfoStart_FromNameDescStart`。
-        *   `numSpacesToPad2 = winyunq.targetRelativeOffset_AdditionalInfoStart_FromNameDescStart - len_ParamName`。
-        *   应用最小空格约束: 若 `numSpacesToPad2 < winyunq.minSpaces_BetweenNameAndRef`，则 `numSpacesToPad2 = winyunq.minSpaces_BetweenNameAndRef`。
-    *   **应用:** 在 `{ParameterName}` 之后填充 `numSpacesToPad2` 个空格。
-
-3.  **`@ref`:** 固定的 Doxygen 关键字，表达的是参数类型。
-
-4.  **`{ReferencedType}`:** 这是需要引用的类型名称。
-    *   **类型处理:**
-        *   类型名称应尽可能简洁明了。
-        *   **对于指针类型 (如 `bool*`, `MyClass*`)，在 `@ref` 后引用时，应去掉末尾的星号 `*`，只引用其基础类型（如 `@ref bool`, `@ref MyClass`）。指针语义应在后续的嵌套 `@details` 中说明。** (这是根据您的要求明确规定)
-        *   对于引用类型 (如 `const std::string&`)，通常引用其基础类型 (`@ref std::string`)，并在 `@details` 中说明是常量引用。
-        *   对于模板类型 (如 `const std::vector<DataType>&`)，可以引用模板本身 (`@ref std::vector`) 或其模板参数 (`@ref DataType`)，并在 `@details` 中详述。推荐引用基础模板或最相关的类型。
-    *   **填充空格:** 在 `@ref` 关键字和 `{ReferencedType}` 之间填充1个空格。
-
-**强制嵌套 `@details`:**
-
-*   对于使用此结构化 `{FirstPieceOfText}` 的 `@param` 和 `@tparam`,`@return`，**必须**在其下一行添加一个嵌套的 (Level 1) `@details` 标签，用于提供该参数的详细描述、用途、约束（如指针是否可空、引用的常量性等）。
-*   对于`@return`中，对于返回值的含义枚举使用`@retval`
-
-**规则 E: `@extends` 的 `{FirstPieceOfText}` 结构化**
-
-对于 `@extends` 标签，其 `{FirstPieceOfText}` 部分被结构化为：
-
-`{Visibility} {BaseClassName}`
-
-其中：
-
-1.  **`{Visibility}`:** 继承的可见性 (`public`, `protected`, `private`)。
-2.  **`{BaseClassName}`:** 基类的名称。
-3.  **空格计算:** `{Visibility}` 紧随 3.3 节计算出的 `<CalculatedPaddingSpaces1>` 之后开始。`{Visibility}` 和 `{BaseClassName}` 之间**必须**有且仅有一个空格。
-
-**示例:**
-
-```cpp
-    * @extends     public BaseWidget
-    * @extends     private ISerializable
+ * And paragraphs, separated by a blank line (which would also
+ * just contain " * " if not entirely empty).
+ * `inline code` and **bold text** are also fine.
+ */
 ```
 
+## 3. `@tag` 命令的排版：在 T0 基准上的局部变换
 
-### 3.5 后续文本行处理 (严格遵循默认文本流)
+本章我们开始讨论包含 `@tag` 命令的行的排版。如第二章所述，Winyunq DocBlock 的每一内容行都以 ` * ` (星号在第2列，空格在第3列) 作为固定前缀，其后的**“内部有效内容区域”**（我们称为 **T0 Content Origin**）从**第4列**开始。
 
-*   **规则:** 再次强调**WinyunqDoxygen Block** (`/** ... **/` 块注释)是写在代码里面的readme.md文件，因此`@tag`是自定义的markdown规则，因此如果 `@tag` 后的描述文本（或其嵌套的 `@details` 等的文本）需要换行，则换行后的文本会因为是markdown中的文本默认处理，即`@tag`仅仅是涉及补充空格，**不影响文本**
-*   **效果:** `@tag` 命令仅影响其所在行的特殊排版。所有后续的文本行都回归到最基础的 Markdown 行行为。
+本章的所有讨论和列号计算，都默认是针对这个**从第4列开始的“内部有效内容区域”**。
 
-## 4. 黄金标准示例 (格式演示 - 更新以匹配新规则 v2.6)
+### 3.1 `@tag` 命令与描述文本的初步行化处理 (遵循 T0)
+
+当一个 `@tag` 命令（例如 `@details`, `@brief`, `@note`）后跟随一段较长的描述文本时，这段长文本需要被分割到多个物理行上，以保证可读性和遵循合理的行长度。
+
+1.  **逻辑视为一体，按 Markdown 原则断行：**
+    *   `@tag` 命令及其全部逻辑描述文本（直到下一个同级 `@tag` 或块结束）首先被视为一个连续的文本流。
+    *   然后，根据句子结束符 (`.`, `。`)、主要逻辑停顿点 (`,`, `，`)、Markdown 结构元素（标题、列表、代码块、段落分隔）或行长度考虑，将此文本流分割成多个物理行。
+
+2.  **初步行化后的 T0 应用：**
+    *   经过上述断行处理后，每一条新产生的物理行，其内容都将填充到从**第4列开始的“内部有效内容区域”**。
+
+**表格：`@tag` 及其长描述文本在“内部有效内容区域”(第4列起)的初步布局**
+
+假设 `@tag` 的逻辑内容是：
+`@details This is sentence one. This is sentence two, which is a bit longer. And this is sentence three.`
+
+**在“内部有效内容区域”（从第4列开始）的呈现：**
+*(每一行都隐含了第二章定义的 ` * ` 前缀)*
+
+| “内部有效内容区域” (从第4列开始) 的内容片段                                      |
+| :--------------------------------------------------------------------------------- |
+| `@details This is sentence one.`                                                   |
+| `This is sentence two, which is a bit longer.`                                     |
+| `And this is sentence three.`                                                      |
+
+**示例（完整 DocBlock 片段）：**
 ```cpp
 /**
- * @class       ComplexDataProcessor
- * @brief       一个用于演示所有格式规则的复杂数据处理器
- * @extends     public BaseProcessor               
- * @extends     private ILoggable                  
- *  @details     此类旨在全面展示 Winyunq DocBlock 的排版特性。
- * 它结合了模板、多参数、多层级标签以及需要换行的长描述文本。
- * 注意观察所有对齐点是如何通过计算空格实现的。
- *   @note        这是一个纯粹用于格式演示的类，不包含实际逻辑。
- *   @warning     请勿在生产代码中直接使用此类。
- *
- * @tparam      ElementType                     @ref BaseItem           // 应用规则 D
- *  @details     容器将存储的元素类型，必须派生自 BaseItem。
- * @tparam      AllocatorType                   @ref std::allocator     // 应用规则 D
- *  @details     用于容器内存管理的分配器类型。
- *
- * @param       inputData                       @ref const std::vector // 应用规则 D (引用基础模板)
- *  @details     输入的待处理数据向量 (元素类型为 ElementType)。向量不能为空。
- * @param       processorConfig                 @ref const Config   // 应用规则 D (引用基础类型)
- *  @details     处理器的配置对象（常量引用），用于控制内部算法。
- *   @note        如果 processorConfig.isValid() 返回 false，则处理可能失败。
- * @param       outExecutionStatus              @ref bool              // 应用规则 D (指针类型去掉了 *)
- *  @details     用于返回操作执行状态的输出参数（指针）。如果操作成功，将被设置为 true，否则为 false。调用者必须提供有效的 bool 指针。
- *
- * @return      处理结果的聚合值                 @ref ElementType       // 应用规则 F (带类型引用)
- *  @details     返回所有输入数据经过处理后的最终聚合结果。具体的聚合方式取决于 processorConfig 中的 mode 设置。
- *  @retval      static_cast<ElementType>(0) 如果输入数据为空或配置无效。
- *  @retval      计算出的聚合值              如果处理成功。
-**/
+ * @details This is the first sentence of a detailed description.
+ * This is the second sentence, which might explain more about
+ * the previous point or introduce a new aspect.
+ *   - This could be a list item starting on a new line.
+ *   - Another list item.
+ * And this is a concluding sentence for the details.
+ */
 ```
+**解读：**
+*   在第一行，`@details This is...` 中的 `@` 符号位于物理行的第4列。
+*   在第二行，`This is the second...` 中的 `T` 符号位于物理行的第4列。
+*   以此类推，所有因断行产生的新行，其内容都始于物理行的第4列。
+
+## 3. `@tag` 命令及其描述文本的排版
+
+本章我们开始讨论包含 `@tag` 命令的行的排版。如第二章所述，所有 Winyunq DocBlock 的内容行都以 ` * ` (星号在第2列，空格在第3列) 作为前缀，其后的有效内容区域（**T0 Content Origin**）从**第4列**开始。
+
+### 3.1 `@tag` 命令与描述文本的初步行化处理
+
+当一个 `@tag` 命令（例如 `@details`, `@brief`, `@note`）后跟随一段较长的描述文本时，为了保持代码的可读性和遵循合理的行长度限制，这段长文本需要被分割到多个物理行上。
+
+**核心原则：将 `@tag` 及其全部逻辑描述视为一个连续的文本流，然后根据 Markdown 的可读性原则进行断行。**
+
+1.  **逻辑上的连续性：**
+    *   在概念上，`@tag` 命令及其所有的描述文本（直到遇到下一个同级 `@tag` 或块结束）构成一个单一的逻辑单元。
+    *   例如：`@details This is a very long description that continues for many sentences, possibly including Markdown formatting like lists or code blocks.`
+
+2.  **断行依据 (Markdown 可读性原则)：**
+    *   **句子结束符：** 强烈建议在完整的句子结束标志（如英文句号 `.`, 中文句号 `。`）之后进行换行。
+    *   **主要从句或短语分隔符：** 也可以在逗号 (`,`, `，`)、分号 (`;`, `；`) 等表示逻辑停顿的地方考虑换行，如果这有助于提高可读性。
+    *   **Markdown 结构元素：**
+        *   Markdown 标题（`### Title`）之后通常是新的一行。
+        *   列表项 (`- Item`, `1. Item`) 通常各自占据新行。
+        *   代码块 (```cpp ... ```) 的开始和结束标记以及其内部的每一行代码，自然形成多行。
+        *   段落之间由一个或多个空行（在 DocBlock 中即只包含 ` * ` 的行或完全空白的 ` *` 行）分隔，每个段落的第一行是新行。
+    *   **行长度限制：** 虽然 Winyunq 风格不强制规定严格的字符数行长度，但应避免出现过长的单行文本，以方便在标准编辑器中阅读。通常，保持行长在 80-120 字符范围内是一个良好的实践。
+
+3.  **初步行化后的 T0 应用：**
+    *   经过上述断行处理后，每一条新产生的物理行，都将遵循第二章定义的 T0 基准：
+        *   以 ` * ` (星号在第2列，空格在第3列) 作为前缀。
+        *   该行上的**所有内容**（包括 `@tag` 命令本身，或其描述文本的片段）都从**第4列 (T0 Content Origin)** 开始。
+
+**表格：`@tag` 及其长描述文本的“初步行化”与 T0 布局**
+
+假设我们有以下逻辑内容：
+`@details This is sentence one. This is sentence two, which is a bit longer. And this is sentence three.`
+
+**初步行化处理 (例如在每个句子后换行)，并应用 T0 布局：**
+
+| 逻辑顺序 | Winyunq DocBlock 行前缀 (`*`@2,` `@3) | “内部有效内容区域” (从第4列开始) 的内容片段                                      |
+| :------- | :--------------------------------------- | :--------------------------------------------------------------------------------- |
+| 第1行    | ` * `                                    | `@details This is sentence one.`                                                   |
+| 第2行    | ` * `                                    | `This is sentence two, which is a bit longer.`                                     |
+| 第3行    | ` * `                                    | `And this is sentence three.`                                                      |
+
+**示例：`@details` 的初步行化**
+
+```cpp
+/**
+ * @details This is the first sentence of a detailed description.
+ * This is the second sentence, which might explain more about
+ * the previous point or introduce a new aspect.
+ *   - This could be a list item starting on a new line.
+ *   - Another list item.
+ * And this is a concluding sentence for the details.
+ */
+```
+
+### 3.2 针对 `@tag` 命令行的布局优化：T1 变换 (层级缩进)
+
+正如同“首行空两格”，**针对于@tag首行内容**，我们需要实现对应的效果。
+
+**3.2.1 T1变换规则：在“Markdown内容区”起始处，针对@tag所在行添加层级空格**
+
+*   T1变换**仅作用于**那些实际包含 `@tag` 命令的物理行。
+*   它通过在该行“Markdown内容区”的起始处（即物理行第4列的位置）预置一定数量的空格，来调整 `@` 符号的相对起始位置。
+*   **逻辑层级数 (0-indexed) 与 T1空格数：**
+    *   一级`@tag` (L0): 在“Markdown内容区”起始处插入 **0** 个层级空格。
+    *   二级`@tag` (L1): 在“Markdown内容区”起始处插入 **1** 个层级空格。
+    *   N+1级`@tag` (LN): 在“Markdown内容区”起始处插入 **N** 个层级空格。
+
+**3.2.2 表格：T1变换对“Markdown内容区”布局的影响**
+
+下表聚焦于**“Markdown内容区”（从物理行第4列开始）**，展示T1变换如何通过在该区域起始处添加空格，来改变 `@tag` 命令的相对布局。
+
+| @tag内容逻辑顺序 |T1|内容片段                                      |
+| :------- | :--------------------------------------- | :--------------------------------------------------------------------------------- |
+| 第1行    | N个空格 | `@details This is sentence one.`                                                   |
+| 第2行    | **Clean** (无空格)           | `This is sentence two, which is a bit longer.`                                     |
+| 第3行    | **Clean** (无空格)               | `And this is sentence three.`                                                      |
+
+**解读表格：**
+*   **第一行 (“T1层级前导空格”)：**只有开始于`@`的行，需要补充N个空格。触发条件为本行开始于`@`
+*   **其他行(“实际呈现的文本内容”)：**其他行清除所有缩进，补充空格与`@`无关。
+
+**示例（回顾）：**
+```cpp
+/**
+ *  @details This is the L1 @details. '@' is at col 5.
+ * This is its second line. 'T' is at col 4.
+ *   @note This is an L2 @note. '@' is at col 6. (2 space)
+ * This is the L1 note's second line. 'T' is at col 4.
+ */
+```
+*  只有开始于`@`的行，需要在`@`左边插入N个空格。**仅仅是开始于`@`的行，仅仅是此行左边**
+
 ## 5. 结语
 
 本《Winyunq Doxygen Block 格式指南》提供了构建符合 Winyunq 风格的 `/** ... **/` 注释块所需的全部格式化规则。AI 代码生成器和开发者在生成或编写此类注释块时，**必须严格遵循**本文档中定义的规则，特别是将块内文本流视为 Markdown 基础，并对 `@tag` 行应用特定的、通过计算空格实现的排版处理。
