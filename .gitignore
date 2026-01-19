@@ -1,0 +1,32 @@
+# Winyunq CodeStyle Git Ignore (Whitelist Strategy)
+
+# 1. Ignore everything by default
+*
+
+# 2. Allow necessary root files & folders
+!/.gitignore
+!/ReadmeAI.md
+!/LICENSE
+!/.Doxyfile
+!/.vscode/
+
+# 3. Allow Agent Skills and Workflows (Core Assets)
+!/.agent/
+!/.agent/**
+
+# 4. Allow Gemini Tools & Demos
+!/Gemini_*.py
+!/Gemini_*.bat
+
+# 5. Allow Source Code (Necessary for Style Verification)
+!/src/
+!/src/**
+
+# 6. Ignore build artifacts inside unignored folders
+# For example, ignore bin/ if inside src/ (though not typical here)
+**/__pycache__/
+**/*.pyc
+**/*.o
+**/*.obj
+**/*.exe
+**/*.bin
