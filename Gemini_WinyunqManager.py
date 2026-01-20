@@ -12,7 +12,7 @@ class WinyunqManagerGUI:
         
         # Paths
         self.ProjectSkillPath = os.path.abspath(".agent/skills")
-        self.SystemSkillPath = os.path.join(os.environ['USERPROFILE'], ".gemini", "antigravity", "skills")
+        self.SystemSkillPath = os.path.join(os.environ['USERPROFILE'], ".gemini", "skills")
         
         self.SetupUi()
 
@@ -40,8 +40,11 @@ class WinyunqManagerGUI:
         tk.Label(self.InstallTab, text=f"Project Path: {self.ProjectSkillPath}", wraplength=500).pack(pady=5)
         tk.Label(self.InstallTab, text=f"System Path: {self.SystemSkillPath}", wraplength=500).pack(pady=5)
         
+        self.SyncSettingsVar = tk.BooleanVar(value=True)
+        tk.Checkbutton(self.InstallTab, text="Register in global settings.json (for Gemini CLI)", variable=self.SyncSettingsVar).pack(pady=5)
+        
         self.InstallBtn = tk.Button(self.InstallTab, text="Install/Sync to Global Space", command=self.SyncSkills, bg="#4CAF50", fg="white", font=("Arial", 10, "bold"))
-        self.InstallBtn.pack(pady=20)
+        self.InstallBtn.pack(pady=10)
 
     def SetupStatsTab(self):
         self.RefreshBtn = tk.Button(self.StatsTab, text="Scan Project for Locking Status", command=self.ScanProject)
@@ -64,9 +67,65 @@ class WinyunqManagerGUI:
                 else:
                     shutil.copy2(s, d)
             
-            messagebox.showinfo("Success", "Skills synced to global system space!")
+            if self.SyncSettingsVar.get():
+                self.UpdateSettingsJson()
+            
+            messagebox.showinfo("Success", "Skills synced to global system space and registered!")
         except Exception as e:
             messagebox.showerror("Error", str(e))
+
+    def UpdateSettingsJson(self):
+        SettingsPath = os.path.join(os.environ['USERPROFILE'], ".gemini", "settings.json")
+        if not os.path.exists(SettingsPath):
+            return
+            
+        try:
+            import re
+            with open(SettingsPath, 'r', encoding='utf-8') as f:
+                Content = f.read()
+            
+            # Strip C-style comments (// and /* */)
+            ContentCleaned = re.sub(r'//.*?\n|/\*.*?\*/', '\n', Content, flags=re.DOTALL)
+            
+            Settings = json.loads(ContentCleaned)
+                    
+            if "skills" not in Settings:
+                Settings["skills"] = {}
+                
+            # Key requested by user
+            MainKey = "winyunq-core" # Aligning with official dash-name
+            CoreSkillPath = os.path.join(self.SystemSkillPath, "WinyunqCore", "SKILL.md").replace("\\", "/")
+            
+            # Update or Register
+            Settings["skills"][MainKey] = {
+                "path": CoreSkillPath,
+                "type": "local",
+                "description": "Winyunq Project Core Skills & Standards"
+            }
+            
+            # Alias for user's requested key
+            Settings["skills"]["WinyunqCodeStyle"] = Settings["skills"][MainKey]
+            
+            # Also register others if they exist
+            for item in os.listdir(self.SystemSkillPath):
+                if item == "WinyunqCore": continue
+                SkillDir = os.path.join(self.SystemSkillPath, item)
+                if os.path.isdir(SkillDir):
+                    SkillMd = os.path.join(SkillDir, "SKILL.md")
+                    if os.path.exists(SkillMd):
+                        KeyName = f"Winyunq_{item}"
+                        Settings["skills"][KeyName] = {
+                            "path": SkillMd.replace("\\", "/"),
+                            "type": "local",
+                            "description": f"Winyunq Domain Skill: {item}"
+                        }
+                        
+            with open(SettingsPath, 'w', encoding='utf-8') as f:
+                json.dump(Settings, f, indent=2, ensure_ascii=False)
+                
+        except Exception as e:
+            print(f"Failed to update settings.json: {e}")
+            raise e
 
     def ScanProject(self):
         self.StatusArea.delete('1.0', tk.END)

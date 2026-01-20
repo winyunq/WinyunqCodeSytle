@@ -1,5 +1,5 @@
 ---
-name: PythonImuAnalysis
+name: python-imu-analysis
 description: "Python IMU 数据处理与机器学习规范，强制执行 Winyunq 跨语言统一风格。"
 ---
 

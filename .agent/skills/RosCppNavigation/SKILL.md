@@ -1,5 +1,5 @@
 ---
-name: RosCppNavigation
+name: ros-cpp-navigation
 description: "ROS 与 C++ 导航逻辑规范，处理 C++ 命名规范、ROS 节点交互及预积分库调用。"
 ---
 

@@ -1,5 +1,5 @@
 ---
-name: WinyunqCore
+name: winyunq-core
 description: "Winyunq 项目核心规范，定义战略、战术、代码风格及工程自动化流程。"
 ---
 
