@@ -9,7 +9,8 @@
 !/LICENSE
 !/.Doxyfile
 !/.vscode/
-
+!/README.md
+!/README_zh.md
 # 3. Allow Agent Skills and Workflows (Core Assets)
 !/.agent/
 !/.agent/**
