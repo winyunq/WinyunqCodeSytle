@@ -42,8 +42,15 @@ description: "Winyunq 项目核心规范，定义战略、战术、代码风格�
 - AI 定期运行 Skill 内置脚本（见 `scripts/`），统计并修复格式违规点。
 
 ## 4. 工具集成 (Skill-MCP Synergy)
+
 - **Skill 是大脑**：存储真理与流程逻辑。
 - **Scripts 是手脚**：Skill 下的 `scripts/` 存放专用 Python 脚本。
-- **核心工具**：
+- **核心工具 (四大支柱)**：
+    - **ReadCode (侦察)**: 基于分类学 (Taxonomy) 的读取。支持 `List`, `Declaration`, `Definition`, `Reference`, `ReadForEdit`。
+    - **WriteCode (战斗)**: 唯一写入入口。支持 `Define` (覆写), `Declare` (追加), `Block` (块替换), `Target` (设定目标)。
+    - **SetTarget (战略)**: 初始化上下文。支持 `Status`, `Path`, `Filter`。
+    - **CheckCode (审计)**: 风格与合规检查。支持 `Style` (Doxygen/命名规范/锁定状态)。
+
+- **辅助脚本**:
     - `WinyunqCommenter`: 自动化生成 Col 对齐注释。
     - `WinyunqLinter`: 自动检测并刷新格式（命名、空行、下划线）。

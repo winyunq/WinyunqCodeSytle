@@ -90,3 +90,79 @@ class Common:
         if rel_file:
             return os.path.join(root, rel_file), scope
         return None, scope
+
+    # --- WinyunqTool Registry ---
+class ToolRegistry:
+    """
+    自举式工具注册中心
+    允许脚本通过 @WinyunqAction 装饰器暴露能力，并自动生成 JSON Schema。
+    """
+    _REGISTRY = {} # { tool_name: { action_name: { func, params, doc } } }
+
+    @classmethod
+    def register(cls, tool_name, action_name, description=""):
+        def decorator(func):
+            import inspect
+            sig = inspect.signature(func)
+            params = []
+            for name, param in sig.parameters.items():
+                if name == "self": continue
+                p_info = {
+                    "name": name,
+                    "default": None if param.default == inspect.Parameter.empty else str(param.default),
+                    "required": param.default == inspect.Parameter.empty
+                }
+                params.append(p_info)
+                
+            if tool_name not in cls._REGISTRY:
+                cls._REGISTRY[tool_name] = {}
+            
+            cls._REGISTRY[tool_name][action_name] = {
+                "func": func,
+                "params": params,
+                "doc": description or func.__doc__ or ""
+            }
+            return func
+        return decorator
+
+    @classmethod
+    def get_manifest(cls, tool_name):
+        """Returns JSON schema for a tool."""
+        return cls._REGISTRY.get(tool_name, {})
+
+    @classmethod
+    def print_manifest(cls, tool_name):
+        """Prints manifest to stdout (for GUI consumption)."""
+        print(json.dumps(cls.get_manifest(tool_name), indent=2, ensure_ascii=False))
+
+    @staticmethod
+    def dispatch(tool_name, command, args, instance=None):
+        """Dispatches execution based on registry."""
+        if tool_name not in ToolRegistry._REGISTRY:
+            print(f"Error: Tool '{tool_name}' not registered.")
+            return
+        
+        actions = ToolRegistry._REGISTRY[tool_name]
+        if command not in actions:
+            print(f"Error: Command '{command}' not in tool '{tool_name}'. Available: {list(actions.keys())}")
+            return
+            
+        entry = actions[command]
+        func = entry["func"]
+        
+        # Check Args
+        # Need to clean args to match signature? 
+        # Python kwargs handle this mostly, but let's be safe.
+        valid_keys = {p["name"] for p in entry["params"]}
+        clean_args = {k: v for k, v in args.items() if k in valid_keys}
+        
+        try:
+            if instance:
+                func(instance, **clean_args)
+            else:
+                func(**clean_args)
+        except Exception as e:
+            print(f"Execution Error ({tool_name}.{command}): {e}")
+
+# Shortcuts
+WinyunqAction = ToolRegistry.register

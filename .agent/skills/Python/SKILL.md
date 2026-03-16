@@ -91,3 +91,38 @@ description: Python 协作开发工作流与 Winyunq 风格规范
 - **WriteCode.py**: 唯一允许的代码写入工具 (支持 Declare/Define/Enable/Disable)。
 - **ReadCode.py**: 代码读取 (Declaration/Definition/Reference)。
 - **AutomaticDocument.py**: 文档生成与格式化 (Format)。
+
+## 4. MCP调用协议 (WinyunqCoding Protocol)
+
+为避免命令行字符转义与编码问题，**强烈推荐**使用以下协议执行复杂操作：
+
+### 4.1 协议流程
+1.  **构造指令**: AI 将操作指令封装为 JSON 格式，写入工作区根目录下的 `WinyunqCoding.md`。
+2.  **执行**: AI 调用 `python .agent/skills/Python/scripts/RunSkill.py` (无参数)。
+3.  **清理**: 脚本执行后虽然不会自动删除 `WinyunqCoding.md`，但在下一次操作时不仅会覆盖它，而且推荐AI在任务完成后主动清理。
+
+### 4.2 文件格式 (WinyunqCoding.md)
+文件应包含一个 `json` 代码块：
+```markdown
+# Winyunq Coding Task
+```json
+{
+    "target": "WriteCode",           // 目标工具: WriteCode, ReadCode, CheckStyle
+    "command": "Define",             // 操作指令
+    "params": {                      // 参数字典
+        "name": "MyClass.process",
+        "code": "Gemini_TEMP_FILE.py", // 推荐传递文件路径，或者直接传递代码字符串
+        "mode": "overwrite"
+    }
+}
+```
+```
+
+### 4.3 支持的指令集
+*   **WriteCode**:
+    *   `Declare`: `{ "code": "..." }`
+    *   `Define`: `{ "name": "...", "code": "...", "mode": "overwrite" }`
+*   **ReadCode**:
+    *   `Declaration`: `{ "name": "..." }`
+    *   `Definition`: `{ "name": "...", "mode": "code" }`
+

@@ -1,140 +1,85 @@
-import os
-import sys
-import argparse
-import ast
 import tkinter as tk
-from tkinter import messagebox
+from tkinter import ttk, scrolledtext, messagebox
+import sys
+import difflib
+import os
 
-def inject_unlock_tag(file_path, function_name=None):
-    """
-    Injects [Unlock] tag into the docstring of the file or specific function.
-    """
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
-    lines = content.splitlines()
-
-    target_node = None
-    
-    try:
-        tree = ast.parse(content)
-        # Search Scope
-        if function_name:
-            for node in ast.walk(tree):
-                if isinstance(node, (ast.FunctionDef, ast.ClassDef)) and node.name == function_name:
-                    target_node = node
-                    break
-        else:
-            # File level? Module docstring
-            if tree.body and isinstance(tree.body[0], ast.Expr) and isinstance(tree.body[0].value, (ast.Str, ast.Constant)):
-                target_node = tree # Module level handling is complex in AST node mapping without node visitor
-                # Let's stick to modifying the first docstring found or appending it
-                pass
-    except SyntaxError:
-        print("Error: Syntax Error parsing file.")
-        return False
-
-    if not target_node and function_name:
-        print(f"Error: Function {function_name} not found.")
-        return False
-
-    # Logic: Find Docstring Line
-    doc_node = None
-    
-    if target_node:
-        doc = ast.get_docstring(target_node)
-        if doc:
-            # Locate node
-            if isinstance(target_node, ast.Module):
-                # special case
-                doc_node = target_node.body[0]
-            elif target_node.body and isinstance(target_node.body[0], ast.Expr) and isinstance(target_node.body[0].value, (ast.Str, ast.Constant)):
-                doc_node = target_node.body[0]
-        else:
-            # No docstring, we should add one? 
-            # Or assume we can just modify file?
-            # If no docstring, it's technically "Draft" or "Error" state anyway (unless Impl comments lock it).
-            # But the user wants explicit [Unlock].
-            # Getting complicated. 
-            # Simplest Winyunq Protocol: If Locked (has docstring), we append [Unlock].
-            pass
-
-    if doc_node:
-        # Edit existing docstring
-        s = doc_node.lineno - 1
-        e = doc_node.end_lineno
+class DiffGUI:
+    def __init__(self, filename, old_content, new_content):
+        self.root = tk.Tk()
+        self.root.title(f"Winyunq Security Alert: {filename}")
+        self.root.geometry("1000x600")
         
-        # Determine indentation
-        indent = ""
-        first_line = lines[s]
-        indent = first_line[:len(first_line)-len(first_line.lstrip())]
+        self.result = False
         
-        # Insert [Unlock] into the docstring text
-        # We can just insert it at line s (inside the quotes?)
-        # Or Just append before closing quotes.
+        # Header
+        header = ttk.Label(self.root, text=f"File '{filename}' is LOCKED.\nAn edit is attempting to modify protected content. Review the changes below:", font=("Arial", 11, "bold"))
+        header.pack(pady=10)
         
-        # Read the block
-        block = lines[s:e]
-        # Find closing quotes
-        last_line = block[-1]
-        if '"""' in last_line:
-             lines[s + len(block) - 1] = last_line.replace('"""', '[Unlock] """', 1) # Append before end
-        elif "'''" in last_line:
-             lines[s + len(block) - 1] = last_line.replace("'''", "[Unlock] '''", 1)
+        # Diff Area
+        paned = ttk.PanedWindow(self.root, orient=tk.HORIZONTAL)
+        paned.pack(fill=tk.BOTH, expand=True, padx=10)
         
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write("\n".join(lines))
-        print(f"Success: Unlocked {function_name if function_name else file_path}")
-        return True
-    
-    else:
-        print("Warning: No docstring found. Code might be Draft already? Attempting global unlock injection.")
-        # Fallback: Just append a comment [Unlock] to line 0 or before function
-        if function_name and target_node:
-             s = target_node.lineno - 1
-             indent = " " * target_node.col_offset
-             lines.insert(s, f"{indent}# [Unlock]")
-             with open(file_path, 'w', encoding='utf-8') as f:
-                f.write("\n".join(lines))
-             return True
-        else:
-             lines.insert(0, "# [Unlock]")
-             with open(file_path, 'w', encoding='utf-8') as f:
-                f.write("\n".join(lines))
-             return True
-        return False
+        # Left: Original
+        f1 = ttk.LabelFrame(paned, text="Original Content")
+        paned.add(f1, weight=1)
+        self.txt_old = scrolledtext.ScrolledText(f1, font=("Consolas", 10))
+        self.txt_old.pack(fill=tk.BOTH, expand=True)
+        self.txt_old.insert(tk.END, old_content)
+        self.txt_old.config(state="disabled")
+        
+        # Right: New
+        f2 = ttk.LabelFrame(paned, text="Proposed Change")
+        paned.add(f2, weight=1)
+        self.txt_new = scrolledtext.ScrolledText(f2, font=("Consolas", 10))
+        self.txt_new.pack(fill=tk.BOTH, expand=True)
+        self.txt_new.insert(tk.END, new_content)
+        
+        # Highlight Differences (Simple)
+        self.highlight_diff(old_content, new_content)
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("file", help="Path to file")
-    parser.add_argument("--function", help="Function/Class name", default=None)
-    args = parser.parse_args()
+        # Actions
+        btn_frame = ttk.Frame(self.root, padding="10")
+        btn_frame.pack(fill=tk.X, side=tk.BOTTOM)
+        
+        ttk.Button(btn_frame, text="CANCEL (Reject Edit)", command=self.on_cancel).pack(side=tk.LEFT, padx=20)
+        ttk.Button(btn_frame, text="FORCE UNLOCK & APPLY (Allow Edit)", command=self.on_confirm).pack(side=tk.RIGHT, padx=20)
 
-    file_path = args.file
-    func_name = args.function
-    
+        self.root.protocol("WM_DELETE_WINDOW", self.on_cancel)
+
+    def highlight_diff(self, a, b):
+        # A very basic tag highlighter could go here
+        # For now, relying on side-by-side view
+        pass
+
+    def on_confirm(self):
+        if messagebox.askyesno("Confirm", "Are you sure you want to force overwrite this locked file?"):
+            self.result = True
+            self.root.destroy()
+
+    def on_cancel(self):
+        self.result = False
+        self.root.destroy()
+
+    def run(self):
+        self.root.mainloop()
+        return self.result
+
+def show_diff_dialog(file_path, new_content):
     if not os.path.exists(file_path):
-        print("File not found")
-        sys.exit(1)
-
-    # 1. UI Request
-    root = tk.Tk()
-    root.withdraw() # Hide main window
-    
-    title = f"AI Request: Unlock {func_name if func_name else os.path.basename(file_path)}?"
-    msg = f"AI Agent requests permission to EDIT/UNLOCK:\n\nFile: {file_path}\nObject: {func_name if func_name else 'Entire File'}\n\nClick Yes to Inject [Unlock] tag."
-    
-    result = messagebox.askyesno("Winyunq Unlock Protocol", msg)
-    
-    if result:
-        # 2. Execute Unlock
-        success = inject_unlock_tag(file_path, func_name)
-        if success:
-            sys.exit(0)
-        else:
-            sys.exit(1)
+        old_content = "(New File)"
     else:
-        print("Request Denied by User")
-        sys.exit(1)
+        with open(file_path, 'r', encoding='utf-8') as f:
+            old_content = f.read()
+            
+    app = DiffGUI(os.path.basename(file_path), old_content, new_content)
+    return app.run()
 
 if __name__ == "__main__":
-    main()
+    # Test Mode
+    # python UnlockGUI.py raw_file new_file
+    if len(sys.argv) > 2:
+        with open(sys.argv[1], 'r') as f: o = f.read()
+        with open(sys.argv[2], 'r') as f: n = f.read()
+        app = DiffGUI("Test", o, n)
+        app.run()

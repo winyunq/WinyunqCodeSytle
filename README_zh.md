@@ -99,22 +99,67 @@ graph TD
     *   **未锁定**: 代码没有正式文档或带有 `Gemini` 前缀。-> **直接放行**。
     *   **已锁定**: 代码包含完整文档且无 Unlock 标签。-> **拦截** 并触发解锁流程。
 3.  **被动解锁 (Passive Unlock)**: 并非 AI 主动想去解锁，而是因为 AI 触碰了锁定资产，系统自动弹出 `UnlockGUI` 批量申请权限。
-4.  **上锁即交付**: 当用户对功能满意时，AI 添加文档 (`AutomaticDocument`)。系统的锁定规则检测到文档存在，自动将其视为 **Locked**，无需额外操作。
+4.  **上锁即交付**: 当用户对功能满意时，AI 添加文档。系统的锁定规则检测到文档存在，自动将其视为 **Locked**，无需额外操作。
 
 ---
 
-## 3. 自动化工具链 (Toolchain Matrix)
+## 3. 工具集详解 (Toolset Reference)
 
-| 工具           | 对应阶段 | 核心功能                                                                       |
-| :------------- | :------- | :----------------------------------------------------------------------------- |
-| **SetTarget**  | 准备     | 初始化上下文，自动创建 `Gemini_` 草稿文件。                                    |
-| **ReadCode**   | 侦察     | `List` (列出大纲), `Read` (读取实现)。                                         |
-| **WriteCode**  | 战斗     | **唯一写入入口**。支持 `Overwrite` (覆盖), `Block` (块覆写), `Insert` (插入)。 |
-| **UnlockGUI**  | 特权     | 当尝试编辑锁定代码时被动触发，弹窗申请修改权。                                 |
-| **CheckStyle** | 验收     | 状态审计 (`Check`) 与 晋升 (`Promote`)。                                       |
+### 3.1 核心概念：代码对象分类 (Taxonomy)
 
-## 4. "Gemini" 沙箱机制
-为确保大规模代码写入的稳定性：
-1. Agent 将代码写入临时文件 (如 `Gemini_Temp.py`)。
-2. 调用 `WriteCode Define target.py Gemini_Temp.py`。
-3. 脚本应用修改，并自动 **粉碎 (删除)** 临时文件。
+为了简化 AI 的认知模型，我们将所有代码对象归纳为三类，`ReadCode -> List` 的行为也仅基于此分类：
+
+| 类别 (Category)         | 包含对象 (Objects)                       | `List` 行为 (Autocomplete Semantics)              |
+| :---------------------- | :--------------------------------------- | :------------------------------------------------ |
+| **Container (容器)**    | `Namespace`, `Class`, `Struct`, `Module` | **展开成员 (Expand)**。<br>返回子对象的名称列表。 |
+| **Executable (执行体)** | `Function`, `Method`, `Constructor`      | **查询调用 (Signature)**。<br>返回参数名称列表。  |
+| **Data (数据)**         | `Variable`, `Field`, `Property`          | **查询类型 (Type)**。<br>返回数据类型名称。       |
+
+### 3.2 ReadCode (侦察 / Context Reader)
+**功能**: 基于分类学 (Taxonomy) 的去路径化读取，支持“深度穿透”。
+**功能**: 读取上下文，支持四级信息层级，原则上返回 **JSON** 格式。
+
+| Action          | Functionality            | Behavior (Output Format: JSON)                                                                                                                                                           |
+| :-------------- | :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **List**        | 快速扫描 (Autocomplete)  | **最常用/最精简**。返回 `["Name1", "Name2"]`。<br>- **Namespace/File**: 列出类名/函数名。<br>- **Class**: 列出成员名。<br>- **Function**: 列出参数名。<br>- **Variable**: 列出变量类型。 |
+| **Declaration** | 读取声明 (Interface)     | 返回 **JSON Object** `{ "doc": "...", "methods": {...}, "variables": {...} }`。<br>包含文档、完整签名、类型信息。不含实现代码。                                                          |
+| **Definition**  | 读取定义 (Body)          | 返回 **Code String** (为了可读性通常返回 Raw Text，或 JSON 包装)。<br>获取完整的函数体或类定义代码。                                                                                     |
+| **Reference**   | 读取引用 (Usage)         | 返回 **JSON List** `[{ "file": "...", "line": 10, "scope": "..." }]`。<br>列出所有引用位置上下文。                                                                                       |
+| **ReadForEdit** | 维护性读取 (Maintenance) | **核心协议**：完整读入代码及所有注释，专为后续维护修改准备。                                                                                                                             |
+
+
+### 3.3 WriteCode (战斗 / Editor)
+**功能**: 唯一写入入口，确保文件完整性与版本控制。
+
+| Action      | Functionality         | Behavior                                                   |
+| :---------- | :-------------------- | :--------------------------------------------------------- |
+| **Define**  | 写入/覆盖 (Overwrite) | 接收完整文件路径或内容，进行覆盖或新建。会自动创建父目录。 |
+| **Declare** | 声明/追加 (Append)    | 向文件追加内容 (通常用于 HPP 追加声明)。                   |
+| **Block**   | 块编辑 (Block Edit)   | (Advanced) 针对特定代码块进行精细替换。                    |
+| **Target**  | 设定目标 (Set Target) | (Legacy) 快捷设定当前操作文件。                            |
+
+### 3.4 SetTarget (战略 / Setup)
+**功能**: 初始化战略上下文 (Working Path & Filters)。
+
+| Action     | Functionality | Behavior                                                  |
+| :--------- | :------------ | :-------------------------------------------------------- |
+| **Status** | 查看状态      | 一键审计当前的 `work_path`、`filters` 等战略状态。        |
+| **Path**   | 修改路径      | 重新锚定 AI 的战略聚焦区域（逻辑根目录）。                |
+| **Filter** | 过滤规则      | 设定排除规则（如 `bin;node_modules`）以压缩 AI 认知负荷。 |
+
+### 3.5 CheckCode (审计 / Auditor)
+**功能**: 代码风格与合规性检查。
+
+| Action    | Functionality | Behavior                                              |
+| :-------- | :------------ | :---------------------------------------------------- |
+| **Style** | 风格检查      | 验证 Doxygen 文档完整性、变量命名规范、锁定状态审计。 |
+
+---
+
+## 4. "Gemini" 沙箱与锁定机制
+
+1. **Gemini_ 前缀**：标识该文件为临时缓存/战术草稿，AI 拥有完全覆盖权。
+2. **正文件 (Formal)**：无前缀。受注释锁定机制保护。
+    - **@brief [内容]**：标识为 Locked，AI 只读。
+    - **@brief Gemini**：标识为 Draft，AI 可编辑。
+3. **维护协议**：进行维护性修改时，优先使用 `ReadForEdit` 读取包含注释的全量代码，确保锁定元数据不丢失。
