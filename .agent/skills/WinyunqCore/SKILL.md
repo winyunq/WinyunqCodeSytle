@@ -42,15 +42,26 @@ description: "Winyunq 项目核心规范，定义战略、战术、代码风格�
 - AI 定期运行 Skill 内置脚本（见 `scripts/`），统计并修复格式违规点。
 
 ## 4. 工具集成 (Skill-MCP Synergy)
-
 - **Skill 是大脑**：存储真理与流程逻辑。
 - **Scripts 是手脚**：Skill 下的 `scripts/` 存放专用 Python 脚本。
-- **核心工具 (四大支柱)**：
-    - **ReadCode (侦察)**: 基于分类学 (Taxonomy) 的读取。支持 `List`, `Declaration`, `Definition`, `Reference`, `ReadForEdit`。
-    - **WriteCode (战斗)**: 唯一写入入口。支持 `Define` (覆写), `Declare` (追加), `Block` (块替换), `Target` (设定目标)。
-    - **SetTarget (战略)**: 初始化上下文。支持 `Status`, `Path`, `Filter`。
-    - **CheckCode (审计)**: 风格与合规检查。支持 `Style` (Doxygen/命名规范/锁定状态)。
-
-- **辅助脚本**:
+- **核心工具**：
     - `WinyunqCommenter`: 自动化生成 Col 对齐注释。
     - `WinyunqLinter`: 自动检测并刷新格式（命名、空行、下划线）。
+
+## 5. 上下文压缩读取
+
+- Target 应指向具体函数或变量；设定一次后，后续读取省略名称。
+- 调用某函数时优先使用 `Declaration`，只读取头文件声明与紧邻公开注释。
+- 理解实现时使用 `Definition`，只返回当前 Target 的代码并剥离注释和兄弟对象。
+- 检查注释时使用 `Comments`，缺省只返回函数体注释；按需选择 `declaration`、`definition` 或 `all`。
+- 只有准备编辑且必须保留源码原貌时才使用 `ReadForEdit`；它仍然只返回当前 Target，不读取完整文件。
+- Doxygen 仅作为可选范围探测器；缺少 Doxygen 时使用内置词法切片器，读取协议保持不变。
+
+## 6. Target 级编辑
+
+- 修改前调用 `EditCode.Prepare`；Target 已包含函数身份，因此它只返回无注释函数体，并在服务端记住文件版本和物理位置。
+- 使用 `EditCode.Preview` 检查短代码片段替换，再使用 `EditCode.Replace` 原子应用。
+- `Replace` 只允许修改当前函数体；函数签名、兄弟函数、Target 外源码均保持不变。
+- 代码写入不得携带注释。若替换范围穿过既有注释，必须缩小代码片段，不能静默删除注释。
+- Target、工作路径或过滤范围变化后，未完成的编辑事务立即失效。
+- 文件在 `Prepare` 后发生变化时拒绝写入，重新读取后才能继续。
