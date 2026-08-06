@@ -24,12 +24,14 @@ class WinyunqMcpServer:
         try:
             from ReadCode import ReadCode
             from WriteCode import WriteCode
+            from EditCode import EditCode
             from SetTarget import SetTarget
             from CheckCode import CheckCode
 
             self.tools = {
                 "ReadCode": ReadCode(),
                 "WriteCode": WriteCode(),
+                "EditCode": EditCode(),
                 "SetTarget": SetTarget(),
                 "CheckCode": CheckCode()
             }

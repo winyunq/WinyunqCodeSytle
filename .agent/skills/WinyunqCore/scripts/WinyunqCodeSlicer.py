@@ -39,6 +39,13 @@ class WinyunqCodeSlicer:
             return self._read_comments(member, comment_part)
         return None
 
+    def resolve(self, name, work_path, filters=None):
+        """Return a copy of the physical mapping for one logical Target."""
+        if not name or "::" not in name:
+            return None
+        member = self._resolve_member(name, work_path, filters or [])
+        return dict(member) if member else None
+
     def _resolve_member(self, name, work_path, filters):
         work_path = os.path.abspath(work_path)
         candidate_files = self._find_candidate_files(name, work_path, filters)

@@ -140,6 +140,16 @@ ReadCode_ReadForEdit({})
 
 上述调用分别读取公开接口、无注释实现、函数体注释和精确编辑源码。除非进入下一层维护，不应把完整 `.h` 或 `.cpp` 文件送入 AI 上下文。Doxygen 可用于探测声明与函数体范围，但不是必需依赖；缺少 Doxygen 时由内置词法切片器完成同样的 Target 级读取。
 
+### 3.2.2 Target 级编辑事务
+
+```text
+EditCode_Prepare({})
+EditCode_Preview({ "old_code": "Value = OldValue;", "new_code": "Value = NewValue;" })
+EditCode_Replace({ "old_code": "Value = OldValue;", "new_code": "Value = NewValue;" })
+```
+
+`Prepare` 只返回当前函数的无注释实现，并由 MCP 在内部记住源码版本。`Replace` 只接收短小的纯代码片段，只在当前函数体内解析和原子替换。文件版本过期、匹配不唯一、新代码夹带注释或替换范围穿过既有注释时一律拒绝。函数签名、已有注释和兄弟函数由程序保留，AI 不需要为了排版或防止丢失而复述它们。
+
 
 ### 3.3 WriteCode (战斗 / Editor)
 **功能**: 唯一写入入口，确保文件完整性与版本控制。

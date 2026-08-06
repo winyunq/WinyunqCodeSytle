@@ -56,3 +56,12 @@ description: "Winyunq 项目核心规范，定义战略、战术、代码风格�
 - 检查注释时使用 `Comments`，缺省只返回函数体注释；按需选择 `declaration`、`definition` 或 `all`。
 - 只有准备编辑且必须保留源码原貌时才使用 `ReadForEdit`；它仍然只返回当前 Target，不读取完整文件。
 - Doxygen 仅作为可选范围探测器；缺少 Doxygen 时使用内置词法切片器，读取协议保持不变。
+
+## 6. Target 级编辑
+
+- 修改前调用 `EditCode.Prepare`；它只返回当前函数的无注释实现，并在服务端记住文件版本和物理位置。
+- 使用 `EditCode.Preview` 检查短代码片段替换，再使用 `EditCode.Replace` 原子应用。
+- `Replace` 只允许修改当前函数体；函数签名、兄弟函数、Target 外源码均保持不变。
+- 代码写入不得携带注释。若替换范围穿过既有注释，必须缩小代码片段，不能静默删除注释。
+- Target、工作路径或过滤范围变化后，未完成的编辑事务立即失效。
+- 文件在 `Prepare` 后发生变化时拒绝写入，重新读取后才能继续。

@@ -72,6 +72,7 @@ class WinyunqBase:
             "work_path": os.path.join(self.root, self.settings.get("default_scope", ".")),
             "filters": [],
             "target_name": None,
+            "pending_edit": None,
             "project_type": "Generic"
         }
 

@@ -26,6 +26,7 @@ class SetTarget(WinyunqBase):
             return f"Error: Path '{full_path}' does not exist."
             
         self.state["work_path"] = full_path
+        self.state["pending_edit"] = None
         self.save_state(self.state)
         return f"Strategy Updated: Working Path is now {full_path}"
 
@@ -34,6 +35,7 @@ class SetTarget(WinyunqBase):
     def set_filters(self, exclude):
         filters = [f.strip() for f in exclude.split(";") if f.strip()]
         self.state["filters"] = filters
+        self.state["pending_edit"] = None
         self.save_state(self.state)
         return f"Strategy Updated: Filters set to {filters}"
 
@@ -41,6 +43,7 @@ class SetTarget(WinyunqBase):
                    params=[{"name": "name", "required": True, "doc": "类、函数或变量名称"}])
     def set_target(self, name):
         self.state["target_name"] = name
+        self.state["pending_edit"] = None
         self.save_state(self.state)
         return f"Strategy Updated: Target is now '{name}'"
 
