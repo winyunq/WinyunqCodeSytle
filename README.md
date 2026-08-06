@@ -118,6 +118,24 @@ graph TD
 | **UnlockGUI**  | Privilege | Passive trigger when editing locked code. Popup request.         |
 | **CheckStyle** | Audit     | Status check (`Check`) and Promotion (`Promote`).                |
 
+### Context-compressed reads
+
+Set a function or variable Target once, then omit its name from later reads:
+
+```text
+SetTarget_Target("ABuildingGridVisualizer::UpdateGrid")
+ReadCode_Declaration({})
+ReadCode_Definition({})
+ReadCode_Comments({ "part": "body" })
+ReadCode_ReadForEdit({})
+```
+
+- `Declaration` returns only the header declaration and its adjacent public documentation.
+- `Definition` returns only the target implementation, without comments or sibling functions.
+- `Comments` returns one requested comment layer; `body` is the default.
+- `ReadForEdit` preserves the exact target source and comments without reading the complete file.
+- Doxygen may be used to detect source ranges, but it is optional; the lexical slicer provides the same read contract when Doxygen is unavailable.
+
 ## 4. "Gemini" Sandbox
 To ensure stability during large edits:
 1. Agent writes code to a temp file (e.g., `Gemini_Temp.py`).

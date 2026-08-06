@@ -15,7 +15,8 @@ class SetTarget(WinyunqBase):
     
     @WinyunqAction("Status", "查看当前战略设定状态 (Scope, Filters, etc.)", params=[])
     def show_status(self):
-        return json.dumps(self.state, indent=4, ensure_ascii=False)
+        combined = {**self.state, "settings": self.settings}
+        return json.dumps(combined, indent=4, ensure_ascii=False)
 
     @WinyunqAction("Path", "修改工作路径 (战略锚点)", 
                    params=[{"name": "path", "required": True, "doc": "新的工作路径 (相对或绝对)"}])
@@ -35,6 +36,13 @@ class SetTarget(WinyunqBase):
         self.state["filters"] = filters
         self.save_state(self.state)
         return f"Strategy Updated: Filters set to {filters}"
+
+    @WinyunqAction("Target", "设置后续读取与写入所使用的缺省代码对象",
+                   params=[{"name": "name", "required": True, "doc": "类、函数或变量名称"}])
+    def set_target(self, name):
+        self.state["target_name"] = name
+        self.save_state(self.state)
+        return f"Strategy Updated: Target is now '{name}'"
 
 if __name__ == "__main__":
     tool = SetTarget()

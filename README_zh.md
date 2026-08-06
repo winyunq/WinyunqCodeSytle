@@ -122,10 +122,23 @@ graph TD
 | Action          | Functionality            | Behavior (Output Format: JSON)                                                                                                                                                           |
 | :-------------- | :----------------------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **List**        | 快速扫描 (Autocomplete)  | **最常用/最精简**。返回 `["Name1", "Name2"]`。<br>- **Namespace/File**: 列出类名/函数名。<br>- **Class**: 列出成员名。<br>- **Function**: 列出参数名。<br>- **Variable**: 列出变量类型。 |
-| **Declaration** | 读取声明 (Interface)     | 返回 **JSON Object** `{ "doc": "...", "methods": {...}, "variables": {...} }`。<br>包含文档、完整签名、类型信息。不含实现代码。                                                          |
-| **Definition**  | 读取定义 (Body)          | 返回 **Code String** (为了可读性通常返回 Raw Text，或 JSON 包装)。<br>获取完整的函数体或类定义代码。                                                                                     |
+| **Declaration** | 紧凑接口 (Interface)     | 对函数 Target 只返回头文件声明与紧邻公开注释；不返回所在头文件的其他成员。                                                                                                             |
+| **Definition**  | 紧凑实现 (Body)          | 对函数 Target 只返回该函数的实现代码，自动剥离注释和兄弟函数。                                                                                                                         |
 | **Reference**   | 读取引用 (Usage)         | 返回 **JSON List** `[{ "file": "...", "line": 10, "scope": "..." }]`。<br>列出所有引用位置上下文。                                                                                       |
-| **ReadForEdit** | 维护性读取 (Maintenance) | **核心协议**：完整读入代码及所有注释，专为后续维护修改准备。                                                                                                                             |
+| **Comments**    | 独立注释读取              | 缺省只返回函数体内部注释；可选择 `declaration`、`definition` 或 `all`。                                                                                                                 |
+| **ReadForEdit** | 精确维护读取              | 只返回当前 Target 的原始源码并保留其注释，不读取完整文件。                                                                                                                             |
+
+### 3.2.1 上下文压缩调用
+
+```text
+SetTarget_Target("ABuildingGridVisualizer::UpdateGrid")
+ReadCode_Declaration({})
+ReadCode_Definition({})
+ReadCode_Comments({ "part": "body" })
+ReadCode_ReadForEdit({})
+```
+
+上述调用分别读取公开接口、无注释实现、函数体注释和精确编辑源码。除非进入下一层维护，不应把完整 `.h` 或 `.cpp` 文件送入 AI 上下文。Doxygen 可用于探测声明与函数体范围，但不是必需依赖；缺少 Doxygen 时由内置词法切片器完成同样的 Target 级读取。
 
 
 ### 3.3 WriteCode (战斗 / Editor)
@@ -162,4 +175,4 @@ graph TD
 2. **正文件 (Formal)**：无前缀。受注释锁定机制保护。
     - **@brief [内容]**：标识为 Locked，AI 只读。
     - **@brief Gemini**：标识为 Draft，AI 可编辑。
-3. **维护协议**：进行维护性修改时，优先使用 `ReadForEdit` 读取包含注释的全量代码，确保锁定元数据不丢失。
+3. **维护协议**：进行维护性修改时，使用 `ReadForEdit` 读取当前 Target 的精确源码与注释；不得为保留锁定元数据而读取整个文件。
