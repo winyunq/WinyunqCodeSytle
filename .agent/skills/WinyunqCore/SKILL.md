@@ -59,7 +59,7 @@ description: "Winyunq 项目核心规范，定义战略、战术、代码风格�
 
 ## 6. Target 级编辑
 
-- 修改前调用 `EditCode.Prepare`；它只返回当前函数的无注释实现，并在服务端记住文件版本和物理位置。
+- 修改前调用 `EditCode.Prepare`；Target 已包含函数身份，因此它只返回无注释函数体，并在服务端记住文件版本和物理位置。
 - 使用 `EditCode.Preview` 检查短代码片段替换，再使用 `EditCode.Replace` 原子应用。
 - `Replace` 只允许修改当前函数体；函数签名、兄弟函数、Target 外源码均保持不变。
 - 代码写入不得携带注释。若替换范围穿过既有注释，必须缩小代码片段，不能静默删除注释。

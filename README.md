@@ -144,7 +144,7 @@ EditCode_Preview({ "old_code": "Value = OldValue;", "new_code": "Value = NewValu
 EditCode_Replace({ "old_code": "Value = OldValue;", "new_code": "Value = NewValue;" })
 ```
 
-`Prepare` returns only the comment-free implementation and stores the source revision inside the MCP session. `Replace` accepts a small code-only fragment, resolves it only inside the current function body, and atomically changes that fragment. It rejects stale revisions, ambiguous matches, comments in the new code, and replacements that cross protected existing comments. Signatures, comments, and sibling functions are preserved by the program instead of being repeated by the model.
+`Prepare` returns only the comment-free function body—the Target already carries the function identity—and stores the source revision inside the MCP session. `Replace` accepts a small code-only fragment, resolves it only inside the current function body, and atomically changes that fragment. It rejects stale revisions, ambiguous matches, comments in the new code, and replacements that cross protected existing comments. Signatures, comments, and sibling functions are preserved by the program instead of being repeated by the model.
 
 ## 4. "Gemini" Sandbox
 To ensure stability during large edits:

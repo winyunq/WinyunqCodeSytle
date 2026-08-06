@@ -33,6 +33,8 @@ class WinyunqCodeSlicer:
             return self._read_declaration(member)
         if view == "implementation":
             return self._read_implementation(member, include_comments=False)
+        if view == "body":
+            return self._read_body(member)
         if view == "exact":
             return self._read_implementation(member, include_comments=True)
         if view == "comments":
@@ -406,6 +408,23 @@ WARNINGS = NO
         code, _ = self._split_comments(source, start)
         return self._compact_blank_lines(code)
 
+    def _read_body(self, member):
+        source = self._read_implementation(member, include_comments=True)
+        if not source or member.get("kind") != "function":
+            return None
+        leaf = member.get("name", "").rsplit("::", 1)[-1]
+        name_match = re.search(rf"\b{re.escape(leaf)}\s*\(", source)
+        if not name_match:
+            return None
+        opening = self._find_function_opening_brace(source, name_match.end())
+        if opening is None:
+            return None
+        closing = self._find_matching_brace(source, opening)
+        if closing is None:
+            return None
+        body, _ = self._split_comments(source[opening + 1:closing], 1)
+        return self._compact_blank_lines(body)
+
     def _read_comments(self, member, comment_part="all"):
         declaration_file = member.get("declaration_file")
         declaration_line = member.get("declaration_line", 0)
@@ -585,14 +604,9 @@ WARNINGS = NO
     @staticmethod
     def _compact_blank_lines(code):
         output = []
-        blank = False
         for line in code.splitlines():
             stripped_right = line.rstrip()
             if not stripped_right:
-                if not blank:
-                    output.append("")
-                blank = True
                 continue
             output.append(stripped_right)
-            blank = False
         return "\n".join(output).strip()

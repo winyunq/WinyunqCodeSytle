@@ -100,6 +100,14 @@ void AExampleActor::UnrelatedFunction()
         self.assertIn("Commit the validated value", result)
         self.assertNotIn("Updates the visible instances", result)
 
+    def test_body_view_omits_redundant_signature_and_comment_gaps(self):
+        result = self.slicer.read(
+            "AExampleActor::UpdateInstances", self.root, view="body"
+        )
+        self.assertIn("CachedCount = Count;", result)
+        self.assertNotIn("AExampleActor::UpdateInstances", result)
+        self.assertNotIn("\n\n", result)
+
 
 if __name__ == "__main__":
     unittest.main()

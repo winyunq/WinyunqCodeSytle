@@ -148,7 +148,7 @@ EditCode_Preview({ "old_code": "Value = OldValue;", "new_code": "Value = NewValu
 EditCode_Replace({ "old_code": "Value = OldValue;", "new_code": "Value = NewValue;" })
 ```
 
-`Prepare` 只返回当前函数的无注释实现，并由 MCP 在内部记住源码版本。`Replace` 只接收短小的纯代码片段，只在当前函数体内解析和原子替换。文件版本过期、匹配不唯一、新代码夹带注释或替换范围穿过既有注释时一律拒绝。函数签名、已有注释和兄弟函数由程序保留，AI 不需要为了排版或防止丢失而复述它们。
+Target 已经包含函数身份，因此 `Prepare` 只返回当前函数的无注释函数体，并由 MCP 在内部记住源码版本。`Replace` 只接收短小的纯代码片段，只在当前函数体内解析和原子替换。文件版本过期、匹配不唯一、新代码夹带注释或替换范围穿过既有注释时一律拒绝。函数签名、已有注释和兄弟函数由程序保留，AI 不需要为了排版或防止丢失而复述它们。
 
 
 ### 3.3 WriteCode (战斗 / Editor)

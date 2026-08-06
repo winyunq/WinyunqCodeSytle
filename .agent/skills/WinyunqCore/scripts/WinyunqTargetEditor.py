@@ -30,7 +30,7 @@ class WinyunqTargetEditor:
             target,
             work_path,
             filters or [],
-            view="implementation",
+            view="body",
         )
         ticket = {
             "id": hashlib.sha256(
