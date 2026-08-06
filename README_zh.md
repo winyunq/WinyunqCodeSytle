@@ -150,6 +150,16 @@ EditCode_Replace({ "old_code": "Value = OldValue;", "new_code": "Value = NewValu
 
 Target 已经包含函数身份，因此 `Prepare` 只返回当前函数的无注释函数体，并由 MCP 在内部记住源码版本。`Replace` 只接收短小的纯代码片段，只在当前函数体内解析和原子替换。文件版本过期、匹配不唯一、新代码夹带注释或替换范围穿过既有注释时一律拒绝。函数签名、已有注释和兄弟函数由程序保留，AI 不需要为了排版或防止丢失而复述它们。
 
+### 3.2.3 用户显式锁定
+
+```text
+TargetLock_Lock({ "reason": "用户确认该行为已经稳定" })
+TargetLock_Status({})
+TargetLock_Unlock({ "confirmation": "UNLOCK ABuildingGridVisualizer::UpdateGrid" })
+```
+
+锁属于逻辑 Target，而不是整个文件。锁定函数仍可读取和无副作用预览，但 `EditCode_Replace` 必须拒绝任何写入。解锁是独立的用户授权操作：AI 不得把普通的“修改这个函数”推断成“允许解锁”。锁定和解锁都会使旧编辑票据失效，因此解锁后必须重新 `Prepare` 才能写入。
+
 
 ### 3.3 WriteCode (战斗 / Editor)
 **功能**: 唯一写入入口，确保文件完整性与版本控制。
