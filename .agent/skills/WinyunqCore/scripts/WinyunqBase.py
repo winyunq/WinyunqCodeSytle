@@ -73,6 +73,7 @@ class WinyunqBase:
             "filters": [],
             "target_name": None,
             "pending_edit": None,
+            "target_locks": {},
             "project_type": "Generic"
         }
 
@@ -86,7 +87,12 @@ class WinyunqBase:
         if os.path.exists(path):
             try:
                 with open(path, 'r', encoding='utf-8') as f:
-                    saved_state = json.load(f)
+                    saved_state = {**default_state, **json.load(f)}
+                    saved_state["target_locks"] = {
+                        workspace: records
+                        for workspace, records in saved_state.get("target_locks", {}).items()
+                        if os.path.isdir(workspace)
+                    }
                     # 合并保存的状态，但如果 work_path 不存在了则降级
                     if not os.path.exists(saved_state.get("work_path", "")):
                         saved_state["work_path"] = default_state["work_path"]

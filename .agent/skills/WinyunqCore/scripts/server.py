@@ -25,6 +25,7 @@ class WinyunqMcpServer:
             from ReadCode import ReadCode
             from WriteCode import WriteCode
             from EditCode import EditCode
+            from TargetLock import TargetLock
             from SetTarget import SetTarget
             from CheckCode import CheckCode
 
@@ -32,6 +33,7 @@ class WinyunqMcpServer:
                 "ReadCode": ReadCode(),
                 "WriteCode": WriteCode(),
                 "EditCode": EditCode(),
+                "TargetLock": TargetLock(),
                 "SetTarget": SetTarget(),
                 "CheckCode": CheckCode()
             }
@@ -93,7 +95,9 @@ class WinyunqMcpServer:
                         "Set a Target once, then omit repeated object names. Prefer List and "
                         "Declaration for compact reads. Definition returns comment-free target "
                         "code, Comments returns one requested comment layer, and ReadForEdit "
-                        "returns exact target source. Avoid ReadForEdit unless editing requires it."
+                        "returns exact target source. Avoid ReadForEdit unless editing requires it. "
+                        "A user-locked Target remains readable but cannot be changed. Never call "
+                        "TargetLock_Unlock unless the user explicitly requested that exact unlock."
                     )
                 }
             }

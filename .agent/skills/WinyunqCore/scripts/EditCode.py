@@ -5,10 +5,12 @@ import sys
 try:
     from WinyunqBase import WinyunqAction, WinyunqBase
     from WinyunqTargetEditor import WinyunqTargetEditor, compact_json
+    from WinyunqTargetLocks import WinyunqTargetLocks
 except ImportError:
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     from WinyunqBase import WinyunqAction, WinyunqBase
     from WinyunqTargetEditor import WinyunqTargetEditor, compact_json
+    from WinyunqTargetLocks import WinyunqTargetLocks
 
 
 class EditCode(WinyunqBase):
@@ -40,9 +42,15 @@ class EditCode(WinyunqBase):
             return f"Error: {error}"
         self.state["pending_edit"] = prepared["ticket"]
         self.save_state(self.state)
+        locked = WinyunqTargetLocks.is_locked(
+            self.state,
+            name,
+            self.state.get("work_path", self.root),
+        )
         return compact_json({
             "target": prepared["target"],
             "revision": prepared["ticket"]["id"],
+            "locked": locked,
             "implementation": prepared["implementation"],
         })
 
@@ -71,6 +79,21 @@ class EditCode(WinyunqBase):
     )
     def replace(self, old_code, new_code):
         ticket = self.state.get("pending_edit")
+        target = ticket.get("target") if ticket else self.state.get("target_name")
+        work_path = (
+            ticket.get("work_path")
+            if ticket
+            else self.state.get("work_path", self.root)
+        )
+        if target and WinyunqTargetLocks.is_locked(
+            self.state,
+            target,
+            work_path,
+        ):
+            return (
+                f"Error: Target '{target}' is locked by the user. "
+                "Only the user may explicitly unlock it before editing."
+            )
         try:
             result = self.editor.replace(ticket, old_code, new_code)
         except (OSError, UnicodeError, ValueError) as error:

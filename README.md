@@ -146,6 +146,16 @@ EditCode_Replace({ "old_code": "Value = OldValue;", "new_code": "Value = NewValu
 
 `Prepare` returns only the comment-free function body—the Target already carries the function identity—and stores the source revision inside the MCP session. `Replace` accepts a small code-only fragment, resolves it only inside the current function body, and atomically changes that fragment. It rejects stale revisions, ambiguous matches, comments in the new code, and replacements that cross protected existing comments. Signatures, comments, and sibling functions are preserved by the program instead of being repeated by the model.
 
+### Explicit user locks
+
+```text
+TargetLock_Lock({ "reason": "User-approved stable behavior" })
+TargetLock_Status({})
+TargetLock_Unlock({ "confirmation": "UNLOCK ABuildingGridVisualizer::UpdateGrid" })
+```
+
+Locks belong to the logical Target rather than the complete file. A locked function remains readable and previewable, but `EditCode_Replace` rejects every write. Unlock is a distinct user-authorized operation: the agent must not infer unlock permission from an ordinary request to modify code. Both lock and unlock invalidate the pending edit ticket, so an unlocked Target must be prepared again before writing.
+
 ## 4. "Gemini" Sandbox
 To ensure stability during large edits:
 1. Agent writes code to a temp file (e.g., `Gemini_Temp.py`).
