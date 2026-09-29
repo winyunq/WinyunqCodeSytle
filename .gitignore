@@ -31,3 +31,17 @@
 **/*.obj
 **/*.exe
 **/*.bin
+
+# Maintained UnrealMaintenanceMCP source distribution
+!/UnrealMaintenanceMCP/
+!/UnrealMaintenanceMCP/**
+/UnrealMaintenanceMCP/**/__pycache__/
+/UnrealMaintenanceMCP/**/*.pyc
+/UnrealMaintenanceMCP/.runtime/
+/UnrealMaintenanceMCP/.doxygenue/
+/UnrealMaintenanceMCP/local-winyunq/
+/UnrealMaintenanceMCP/*.sqlite3*
+/UnrealMaintenanceMCP/*.py.original
+
+# CODEX_SOURCE_ONLY_DEFAULT
+*
