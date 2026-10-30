@@ -62,7 +62,7 @@ class App:
         preview=ttk.Frame(self.tabs);self.tabs.add(preview,text='预览差异 / 函数差异');self.diff=self.text(preview);self.diff.pack(fill='both',expand=True)
         wire=ttk.Frame(self.tabs);self.tabs.add(wire,text='真实请求 / 返回');self.wire=self.text(wire);self.wire.pack(fill='both',expand=True)
         bottom=ttk.Frame(master,padding=8);bottom.pack(side='bottom',before=self.tabs,fill='x')
-        for title,func in [('检查源码注释',lambda:self.send('Configure',{'action':'check_comments'})),('Doxygen导出HTML',lambda:self.send('Configure',{'action':'export_docs'})),('执行受信验证',lambda:self.send('Configure',{'action':'validate'})),('当前计划按函数看',lambda:self.send('Read',{'view':'changes','base':'WORKTREE','target':'PLAN','limit':20})),('Codex/Skill配置',self.configuration),('生成UE桥接启动脚本',self.bridge_launcher)]:ttk.Button(bottom,text=title,command=func).pack(side='left',padx=3)
+        for title,func in [('生成网页',lambda:self.send('Configure',{'action':'generate_website'})),('检查源码注释',lambda:self.send('Configure',{'action':'check_comments'})),('Doxygen导出HTML',lambda:self.send('Configure',{'action':'export_docs'})),('执行受信验证',lambda:self.send('Configure',{'action':'validate'})),('当前计划按函数看',lambda:self.send('Read',{'view':'changes','base':'WORKTREE','target':'PLAN','limit':20})),('Codex/Skill配置',self.configuration),('生成UE桥接启动脚本',self.bridge_launcher)]:ttk.Button(bottom,text=title,command=func).pack(side='left',padx=3)
         self.root.after(80,self.pump);self.root.protocol('WM_DELETE_WINDOW',self.close)
     def text(self,parent):return tk.Text(parent,wrap='word',font=('Noto Sans Mono CJK SC' if os.name!='nt' else 'Microsoft YaHei UI',10),undo=True)
     def choose(self,var,mode):

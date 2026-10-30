@@ -1,0 +1,72 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WEBSITE_ZH</title><style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;margin:0;color:#1f2937;background:#f4f6fa;line-height:1.75}main{max-width:1020px;margin:auto;background:white;padding:38px 50px 70px}nav{background:#152a40;color:white;padding:16px 30px}a{color:#146378}nav a{color:white;margin-right:24px}h1{font-size:28px;border-bottom:3px solid #146378;padding-bottom:18px}h2{margin-top:36px;font-size:22px}h3{font-size:18px}pre{overflow:auto;background:#eef3f7;padding:18px;border-left:4px solid #146378;font-size:14px;line-height:1.65}code{font-family:Consolas,monospace;font-size:0.91em}p code{background:#eef3f7;padding:2px 4px}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th,td{border:1px solid #d4dde5;text-align:left;padding:10px;vertical-align:top}th{background:#eaf2f6}img{max-width:100%}.muted{color:#526577;font-size:14px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#eef3f7;padding:18px;border-radius:5px}@media(max-width:700px){main{padding:22px}.cards{grid-template-columns:1fr}table{font-size:12px}}</style><nav><a href="../index.html">UnrealEngineCPPCodingMCP 0.1.0</a><span>本地使用手册 · 无外部资源</span></nav><main><h1>生成 API 网页</h1>
+<p>MCP 和 GUI 都有“生成网页”。项目 profile 的 <code>documentation</code> 指定源码、受众、语言和输出目录。生成不修改 C++、头文件或 UE 节点。</p>
+<pre><code>{&quot;name&quot;:&quot;Configure&quot;,&quot;arguments&quot;:{&quot;action&quot;:&quot;generate_website&quot;,&quot;audience&quot;:&quot;both&quot;}}</code></pre>
+<p><code>developer</code>：使用配置的 C++ 实现和头文件，包含实现说明和内部文档。</p>
+<p><code>user</code>：只读取配置的公开头文件，展示公开声明、说明、参数、返回值与示例。</p>
+<p><code>both</code>：同时生成上述两种文档。<code>languages</code> 可覆盖 profile 中的语言列表。</p>
+<p>两种受众都经过 Doxygen XML → 通用网页格式化器，使用统一的导航、搜索、参数表、代码块和语言切换。网页不使用 Doxygen 原生 HTML 模板。</p>
+<h2>项目配置</h2>
+<p>生成器不定义 API 分类。项目可配置任意数量的 <code>groups</code>；未配置时生成一节 Reference。<code>user_inputs</code> 默认匹配 <code>Source/**/*.h</code> 和 <code>.hpp</code>，<code>developer_inputs</code> 默认再加入 <code>.cpp</code>。分组配置取代对应输入列表；开发者视图可使用 <code>developer_groups</code>。</p>
+<p>最小 profile 示例：</p>
+<pre><code>{
+  &quot;version&quot;: 1,
+  &quot;mode&quot;: &quot;maintain&quot;,
+  &quot;documentation&quot;: {
+    &quot;title&quot;: &quot;My Plugin&quot;,
+    &quot;languages&quot;: [&quot;en&quot;, &quot;zh-CN&quot;],
+    &quot;user_inputs&quot;: [&quot;Source/MyModule/Public/**/*.h&quot;],
+    &quot;developer_inputs&quot;: [&quot;Source/MyModule/**/*.h&quot;, &quot;Source/MyModule/**/*.cpp&quot;],
+    &quot;output&quot;: &quot;Saved/Documentation/Website&quot;,
+    &quot;translation_directory&quot;: &quot;Docs/TranslationMemory&quot;
+  }
+}</code></pre>
+<p><code>overview.heading</code>、<code>overview.description</code> 和各分组的 <code>title</code>、<code>description</code>、<code>example</code> 可使用按语言代码索引的文字对象。产品名称、引导文案和分类只放在项目配置中。</p>
+<p>LiteRT-LM Unreal 的实际配置保存在插件 <code>Docs/McpDocumentation.json</code>。它将现有接口投影为 SimpleChat、MultiChat、NativeSDK、Extensions、Settings 五组；Extensions 标为实验性。这是项目配置示例，不是 MCP 内置分类。</p>
+<p>每组的 <code>headers</code> 接受相对 glob 字符串，或带 <code>glob</code>、<code>symbols_regex</code> 的对象。正则选择完整符号名，不用正则重新解析 C++。源码解析与文档字段仍由原有 Doxygen 引擎提供。</p>
+<pre><code>{
+  &quot;id&quot;: &quot;SimpleChat&quot;,
+  &quot;headers&quot;: [
+    &quot;Source/LiteRTLMUnreal/API/SimpleChat/**/*.h&quot;,
+    {&quot;glob&quot;:&quot;Source/LiteRTLMUnreal/Public/LiteRtLmFastStart.h&quot;,
+     &quot;symbols_regex&quot;:&quot;::(ChatOne|PreloadOne|NewConversationOne)$&quot;}
+  ]
+}</code></pre>
+<p>这使现有头文件可以立即生成网页，未来放入 API 目录的新头文件也会被发现。无需提前移动 API 源码。未匹配的内部函数不进入用户页。</p>
+<p><code>hidden_parameters</code> 可隐藏由 UE 自动提供的 WorldContextObject。异步节点由 <code>async_regex</code> 和 <code>async_outputs</code> 明确显示完成、失败和文本输出。C++ 声明保留在可展开的参考区。</p>
+<h2>增量翻译与命中</h2>
+<p>参考 LaTeX 翻译状态文件的做法，保留文件哈希、原文、译文、审核状态和生成记录。记录按符号、声明及字段标识，不绑定源码行号。</p>
+<p><code>translation_directory/&lt;语言&gt;.json</code> 是可用普通 Read/Write 维护的记录数组：</p>
+<pre><code>{
+  &quot;id&quot;:&quot;稳定字段标识&quot;,
+  &quot;source_text&quot;:&quot;Your message.&quot;,
+  &quot;source_hash&quot;:&quot;当前原文哈希&quot;,
+  &quot;translation&quot;:&quot;你的消息。&quot;,
+  &quot;translated_source_hash&quot;:&quot;译文对应的原文哈希&quot;,
+  &quot;reviewed&quot;:true
+}</code></pre>
+<p>原文未变时精确命中；相同文本可复用已有译文。原文改变后保留旧译文供维护者查看，但网页回退显示新原文，不继续展示已过期的翻译。<code>state.json</code> 保存文件哈希、hits/reused/seeded/missing/stale 数量和待翻译 id。</p>
+<p>头文件已有的 <code>@par 中文</code>、配置的双语分隔正则，以及 UE 的 <code>ApiLocalization.json</code> 可以提供初始译文。初始译文仍记录来源原文哈希，后续源注释变化不会被旧种子覆盖。</p>
+<p>需要通过 MCP 维护译文时，先创建内容为 <code>[]</code> 的语言 JSON 文件，再将其注册为普通 JSON 数据绑定。LiteRT 项目使用 <code>ApiTranslationsZh</code>，维护示例：</p>
+<pre><code>Read(name=&quot;ApiTranslationsZh&quot;, view=&quot;rows&quot;, limit=20)
+Write(name=&quot;ApiTranslationsZh&quot;, rows=[{
+  &quot;id&quot;:&quot;读取到的id&quot;,
+  &quot;translation&quot;:&quot;更新后的译文&quot;,
+  &quot;translated_source_hash&quot;:&quot;读取到的source_hash&quot;,
+  &quot;reviewed&quot;:true
+}])
+Write(action=&quot;apply&quot;, plan=&quot;预览返回的plan&quot;)
+Configure(action=&quot;generate_website&quot;, audience=&quot;user&quot;)</code></pre>
+<p>语言切换不改代码标识、参数名或接口签名。未命中的内容显示原文，并在维护记录中列出；生成成功不代表翻译全部完成。</p>
+<h2>输出</h2>
+<p>默认输出到 <code>Saved/Documentation/Website</code>：</p>
+<pre><code>index.html
+user/en/                 英文用户页
+user/zh-CN/              中文用户页
+developer/en/            英文开发者页
+developer/zh-CN/         中文开发者页
+user-source/xml/         用户头文件的 Doxygen 数据
+developer-source/xml/    C++ 实现与头文件的 Doxygen 数据
+assets/                  本地 CSS、搜索脚本
+manifest.json            输入文件、版本、数量和翻译统计</code></pre>
+<p>网页使用本地 CSS/JS。可直接预览或交给现有网站部署流程；此操作不自动发布网站，也不替代 UE 编译与游戏验证。</p>
+<p>文档数据源：<a href="https://www.doxygen.nl/manual/customize.html">Doxygen XML</a>。</p></main></html>

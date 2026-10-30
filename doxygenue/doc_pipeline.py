@@ -24,7 +24,7 @@ def selected_files(engine, path=''):
     return files
 
 
-def run_doxygen(engine,files,folder,*,strict=False,html=False,latex=False,public_only=True):
+def run_doxygen(engine,files,folder,*,strict=False,html=False,latex=False,public_only=True,extra_config=''):
     cat=engine.catalog;cat.check_binary()
     before={canonical(p):sha(p.read_bytes()) for p in files}
     config=cat.config(files,folder,html)
@@ -47,6 +47,7 @@ def run_doxygen(engine,files,folder,*,strict=False,html=False,latex=False,public
         config+='LATEX_EXTRA_STYLESHEET = '+quote(str(style))+'\n'
     config+='VERBATIM_HEADERS = NO\nOUTPUT_LANGUAGE = English\nSTRIP_FROM_PATH = '+quote(engine.root)+'\n'
     config+='WARN_LOGFILE = '+quote(str(folder/'warnings.log'))+'\n'
+    config+=extra_config
     (folder/'Doxyfile').write_text(config,encoding='utf-8')
     p=subprocess.run([cat.executable,str(folder/'Doxyfile')],cwd=engine.root,
         capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=180,check=False)

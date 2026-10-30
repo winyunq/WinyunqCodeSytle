@@ -1,0 +1,41 @@
+{
+  "full_suite": {
+    "tests": 107,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "skip_reason": "POSIX link probe on Windows"
+  },
+  "final_website_tests": {
+    "tests": 2,
+    "failures": 0
+  },
+  "actual_project": {
+    "name": "LiteRT-LM Unreal",
+    "profile": "Docs/McpDocumentation.json",
+    "groups": {
+      "SimpleChat": 3,
+      "MultiChat": 4,
+      "NativeSDK": 129,
+      "Extensions": 34,
+      "Settings": 15
+    },
+    "user_declarations": 185,
+    "developer_declarations": 838,
+    "languages": [
+      "en",
+      "zh-CN"
+    ],
+    "translation_counts": [
+      {
+        "language": "zh-CN",
+        "hits": 0,
+        "reused": 35,
+        "seeded": 273,
+        "missing": 1549,
+        "stale": 0,
+        "active": 1857
+      }
+    ]
+  }
+}

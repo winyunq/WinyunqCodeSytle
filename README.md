@@ -90,6 +90,8 @@ python Run.py server --project /path/to/project --profile /path/to/approved-prof
 
 ## 文档
 
+- [生成开发者/用户网页、五类 API 和增量翻译](docs/WEBSITE_ZH.md)
+
 - [使用手册](docs/MANUAL_ZH.md)
 - [四工具实际清单](docs/TOOLS.md) / [运行中 tools/list](docs/TOOLS.json)
 - [配置已有项目](docs/PROFILE_ZH.md)

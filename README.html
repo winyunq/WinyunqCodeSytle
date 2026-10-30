@@ -1,6 +1,52 @@
 <!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>README</title><style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;margin:0;color:#1f2937;background:#f4f6fa;line-height:1.75}main{max-width:1020px;margin:auto;background:white;padding:38px 50px 70px}nav{background:#152a40;color:white;padding:16px 30px}a{color:#146378}nav a{color:white;margin-right:24px}h1{font-size:28px;border-bottom:3px solid #146378;padding-bottom:18px}h2{margin-top:36px;font-size:22px}h3{font-size:18px}pre{overflow:auto;background:#eef3f7;padding:18px;border-left:4px solid #146378;font-size:14px;line-height:1.65}code{font-family:Consolas,monospace;font-size:0.91em}p code{background:#eef3f7;padding:2px 4px}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th,td{border:1px solid #d4dde5;text-align:left;padding:10px;vertical-align:top}th{background:#eaf2f6}img{max-width:100%}.muted{color:#526577;font-size:14px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#eef3f7;padding:18px;border-radius:5px}@media(max-width:700px){main{padding:22px}.cards{grid-template-columns:1fr}table{font-size:12px}}</style><nav><a href="index.html">UnrealEngineCPPCodingMCP 0.1.0</a><span>本地使用手册 · 无外部资源</span></nav><main><h1>UnrealEngineCPPCodingMCP 0.1.0</h1>
 <p>面向 UE5 工程的 C++ 代码 MCP。</p>
 <p>这是新的独立交付，不覆盖 DoxygenUnrealEngine 0.3.0，也不是 Doxygen 内核 fork。保留了既有、已验证的 Doxygen/C++ 局部编辑引擎；新入口把项目数据与源码放进同一套 <b>Read / Write / Delete / Configure</b>。Skill 决定解决问题的顺序，程序执行可验证的范围、字段、版本、锁和任务测试。</p>
+<h2>分层功能架构</h2>
+<p>!<a href="docs/architecture.svg">分层功能架构</a></p>
+<p>&lt;details&gt;</p>
+<p>&lt;summary&gt;Mermaid 源码&lt;/summary&gt;</p>
+<pre><code>flowchart TB
+    subgraph API[&quot; &quot;]
+        direction LR
+        L1[&quot;&lt;div style=&#x27;width:190px;height:350px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:20px&#x27;&gt;&lt;div&gt;&lt;b&gt;MCP 功能入口&lt;/b&gt;&lt;br/&gt;接收维护请求&lt;br/&gt;提供读、写、删、配置功能&lt;/div&gt;&lt;/div&gt;&quot;]
+        READ[&quot;&lt;div style=&#x27;width:190px;height:350px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;读 · Read&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;工程与绑定清单&lt;br/&gt;符号与数据搜索&lt;br/&gt;符号概览与详情&lt;br/&gt;源码与原始内容读取&lt;br/&gt;注释与 Doxygen 文档读取&lt;br/&gt;数据行查询与字段筛选&lt;br/&gt;符号引用定位&lt;br/&gt;修改差异对比&lt;br/&gt;变更历史与维护清单&lt;br/&gt;修改计划读取&lt;/div&gt;&quot;]
+        WRITE[&quot;&lt;div style=&#x27;width:190px;height:350px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;写 · Write&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;源码新增与局部修改&lt;br/&gt;新增符号与成员&lt;br/&gt;单个与批量成员反射标记&lt;br/&gt;函数声明与定义编辑&lt;br/&gt;include 增加与修改&lt;br/&gt;Doxygen 字段与注释编辑&lt;br/&gt;局部初始化值修改&lt;br/&gt;数据记录增加与修改&lt;br/&gt;JSON/CSV 导入与字段映射&lt;br/&gt;坦克目标修改&lt;br/&gt;坦克资产路径替换&lt;br/&gt;聚焦坦克路径替换&lt;br/&gt;聚焦坦克描述替换&lt;br/&gt;修改预览与提交&lt;/div&gt;&quot;]
+        DELETE[&quot;&lt;div style=&#x27;width:190px;height:350px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;删 · Delete&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;代码片段删除&lt;br/&gt;源码符号删除&lt;br/&gt;注释删除&lt;br/&gt;include 删除&lt;br/&gt;数据与资产记录按主键删除&lt;br/&gt;旧 INI 配置清理&lt;br/&gt;删除预览与提交&lt;/div&gt;&quot;]
+        CONFIGURE[&quot;&lt;div style=&#x27;width:190px;height:350px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;配置 · Configure&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;维护状态读取&lt;br/&gt;缺省目标设置&lt;br/&gt;父子目标与作用范围&lt;br/&gt;维护任务中止&lt;br/&gt;数据锁定&lt;br/&gt;锁状态查询&lt;br/&gt;编译与任务验证&lt;br/&gt;UE 本地化检查&lt;br/&gt;Doxygen 注释检查&lt;br/&gt;HTML/LaTeX/PDF 文档导出&lt;br/&gt;Doxygen 索引重建&lt;br/&gt;审批状态读取&lt;br/&gt;权限策略读取&lt;/div&gt;&quot;]
+        L1 ~~~ READ ~~~ WRITE ~~~ DELETE ~~~ CONFIGURE
+    end
+
+    subgraph PROCESS[&quot; &quot;]
+        direction LR
+        L2[&quot;&lt;div style=&#x27;width:190px;height:70px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:20px&#x27;&gt;&lt;div&gt;&lt;b&gt;代码与数据处理层&lt;/b&gt;&lt;br/&gt;按风格规则处理源码&lt;br/&gt;按项目绑定处理数据&lt;/div&gt;&lt;/div&gt;&quot;]
+        SOURCE[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;源码解析与定位&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;符号定位 · 源码结构解析&lt;/div&gt;&quot;]
+        COMMENTS[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;注释与文档处理&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;Doxygen 字段读取与编辑&lt;/div&gt;&quot;]
+        EDIT[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;源码编辑与同步&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;局部编辑 · CPP/H 同步&lt;/div&gt;&quot;]
+        DATA[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;项目数据适配&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;JSON/CSV · UE 数据表&lt;/div&gt;&quot;]
+        L2 ~~~ SOURCE ~~~ COMMENTS ~~~ EDIT ~~~ DATA
+    end
+
+    subgraph SUPPORT[&quot; &quot;]
+        direction LR
+        L3[&quot;&lt;div style=&#x27;width:190px;height:70px;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:20px&#x27;&gt;&lt;div&gt;&lt;b&gt;基础能力层&lt;/b&gt;&lt;br/&gt;提供索引、检查与存储&lt;/div&gt;&lt;/div&gt;&quot;]
+        DOXYGEN[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;Doxygen&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;符号与文档索引&lt;/div&gt;&quot;]
+        CPP[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;C++ 检查&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;词法与源码结构检查&lt;/div&gt;&quot;]
+        VALIDATION[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;编译与任务验证&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;运行项目配置的验证命令&lt;/div&gt;&quot;]
+        STORE[&quot;&lt;div style=&#x27;width:190px;height:70px;font-size:14px;line-height:20px&#x27;&gt;&lt;b style=&#x27;color:#1d4ed8&#x27;&gt;SQLite&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;状态与变更历史存储&lt;/div&gt;&quot;]
+        L3 ~~~ DOXYGEN ~~~ CPP ~~~ VALIDATION ~~~ STORE
+    end
+
+    API --&gt; PROCESS --&gt; SUPPORT
+
+    classDef layer fill:#eef2f6,stroke:#475569,color:#111827
+    classDef module fill:#ffffff,stroke:#1d4ed8,stroke-width:2px,color:#111827
+    classDef feature fill:#ffffff,stroke:#64748b,color:#111827
+    classDef row fill:#ffffff,stroke:#94a3b8,color:#111827
+    class L1,L2,L3 layer
+    class READ,WRITE,DELETE,CONFIGURE module
+    class SOURCE,COMMENTS,EDIT,DATA,DOXYGEN,CPP,VALIDATION,STORE feature
+    class API,PROCESS,SUPPORT row</code></pre>
+<p>&lt;/details&gt;</p>
 <h2>先运行实际例子</h2>
 <p>需要 CPython 3.10+。GUI 需要 Tk（Windows 官方 Python 安装选项 Tcl/Tk）；运行产品不需要 pip。数据模式不需要 Doxygen。代码功能需要 Doxygen；便携 C++ 验收需要 g++ 或 clang++，不是 UE 构建。</p>
 <p>1. 解压，双击 <code>Start-GUI.cmd</code>，点击“新建演示副本”。它只复制包内例子到新临时目录。</p>
@@ -20,6 +66,7 @@
 <p>不支持 SQLite/SQL 写入、INI 写入、星际地图二进制格式解码、任意 UAsset/Blueprint 图修改、全量 C++ 调用点重构或完整 UHT 语义。输入文件单个最多16 MiB、表最多100000行；源码索引首次扫描和变化重建的整 UE 工程性能没有测量。不要以例子的速度推断真实项目。</p>
 <p>同一系统账户的任意 Shell 权限可以绕开此 MCP。GUI 点击不是 OS 身份认证。没有连接实际 UE 时，资产操作明确失败，不伪造结果，也不改 C++ 兜底。</p>
 <h2>文档</h2>
+<p><a href="docs/WEBSITE_ZH.html">生成开发者/用户网页、五类 API 和增量翻译</a></p>
 <p><a href="docs/MANUAL_ZH.html">使用手册</a></p>
 <p><a href="docs/TOOLS.html">四工具实际清单</a> / <a href="docs/TOOLS.json">运行中 tools/list</a></p>
 <p><a href="docs/PROFILE_ZH.html">配置已有项目</a></p>
@@ -27,4 +74,12 @@
 <p><a href="docs/ACCEPTANCE_ZH.html">可控范围与验收</a></p>
 <p><a href=".agents/skills/ue-maintenance/SKILL.md">Skill</a></p>
 <p><a href="evidence/README.md">证据</a></p>
-<p><code>Install-Windows.cmd</code> 是 Python 本地安装脚本，不是自包含 Setup.exe；它校验清单，安装到新的版本目录，不覆盖旧目录，不改用户项目。没有在 Windows 做过安装验收。见 NOTICE.md 的来源和许可边界。</p></main></html>
+<p><code>Install-Windows.cmd</code> 是 Python 本地安装脚本，不是自包含 Setup.exe；它校验清单，安装到新的版本目录，不覆盖旧目录，不改用户项目。没有在 Windows 做过安装验收。见 NOTICE.md 的来源和许可边界。</p>
+<h2>本地维护修订</h2>
+<p><a href="docs/LOCAL_MAINTENANCE_20260919.md">2026-09-19 修复、验证与已知限制</a>。</p>
+<h2>本地化遗漏检查</h2>
+<p><code>Configure(action=&quot;check_localization&quot;, name=&quot;Game&quot;)</code> 读取项目原生 <code>Game.manifest</code> 与中文、英文 <code>Game.archive</code>，报告缺失或空译文、源文本变化及中文原文换行不一致。返回 <code>gathered</code>、<code>missing</code>、带来源位置的 <code>gaps</code>；空采集报错，不能当作零遗漏。先使用 UE Localization Dashboard 的 Gather Text 更新采集结果，再检查；导入和编译仍由 UE 原生本地化工具负责。</p>
+<p>代码预览新增 <code>FText::FromString(TEXT(...))</code>、<code>FText::FromString(FString::Printf(TEXT(...)))</code> 或 <code>AsCultureInvariant</code> 普通文字时，返回 <code>localization_warnings</code>，提示使用已有本地化 FText、LOCTEXT/NSLOCTEXT 或字符串表身份。检查不修改语言、资产、权限或运行时 UI。</p>
+<p>需要按界面检查时可使用 CLI：</p>
+<pre><code>python tools/check_localization.py --manifest PROJECT/Content/Localization/Game/Game.manifest --archive zh=PROJECT/Content/Localization/Game/zh-Hans-CN/Game.archive --archive en=PROJECT/Content/Localization/Game/en/Game.archive --namespace Winyunq.UI</code></pre>
+<p><code>--location</code> 支持原生采集来源通配符；<code>--project PROJECT --editor UnrealEditor-Cmd.exe</code> 可调用 UE 原生采集并把检查中间文件放入 Saved/LocalizationChecks。发现遗漏时退出码为 1。原生采集覆盖有身份的 FText；动态 FString、运行时拼接或明确不可本地化文本仍需核对实际界面。代码预览的字面量提示仅检查本次新增片段。MCP 服务重启后加载新增动作和提示。</p></main></html>

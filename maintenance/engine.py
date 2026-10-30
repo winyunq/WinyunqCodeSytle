@@ -496,7 +496,10 @@ class Engine:
         if 'receipt' in out:result['receipt']=out['receipt']
         return result
 
-    def configure(self,action='status',name='',path='',kind='',reason='',output_format='html',limit=20):
+    def configure(self,action='status',name='',path='',kind='',reason='',output_format='html',limit=20,audience='both',languages=None):
+        if action=='generate_website':
+            from .website import generate_website
+            return generate_website(self,audience=audience,languages=languages)
         if action=='check_localization':
             from tools.check_localization import gather_entries,read_archives,find_gaps
             target=name or 'Game'

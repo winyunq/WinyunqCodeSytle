@@ -36,14 +36,16 @@ SCHEMAS={
  'Delete':schema({**LOCATION,'action':S(enum=['preview','apply']),'plan':S(),'kind':S(enum=['data','asset','code','symbol','comment','include']),
     'keys':{'type':'array','items':{'type':['string','integer']}},'old_code':S(),
     'part':S(enum=['body','declaration','definition','file_header']),'comment_id':S(),'reason':S('删除理由，不是批准凭证。')}),
- 'Configure':schema({**LOCATION,'action':S(enum=['status','target','parent','child','scope','abort','lock','lock_status','validate','check_localization','check_comments','export_docs','reindex','approvals','policy']),
-    'kind':S(enum=['data','asset','code']),'reason':S(),'output_format':S(enum=['html','latex','pdf']),'limit':{'type':'integer','minimum':1,'maximum':100}})
+  'Configure':schema({**LOCATION,'action':S(enum=['status','target','parent','child','scope','abort','lock','lock_status','validate','check_localization','check_comments','export_docs','generate_website','reindex','approvals','policy']),
+    'kind':S(enum=['data','asset','code']),'reason':S(),'output_format':S(enum=['html','latex','pdf']),'limit':{'type':'integer','minimum':1,'maximum':100},
+    'audience':S('网页文档受众；用户文档只取配置的公开头文件。',['user','developer','both']),
+    'languages':{'type':'array','items':S('语言代码，如 en、zh-CN。')}})
 }
 DESCRIPTIONS={
  'Read':'发现已有工程能力与数据；默认一个brief，直接选overview/details/rows即可一次读足。Target仅补缺省。',
  'Write':'增加/编辑既有记录、源码或注释，保留省略内容。preview→apply。modify_member 可给单个字段/函数增改 UPROPERTY/UFUNCTION；modify_members 可在一个事务中修改同一类型的多个字段标记，并校验 C++ 成员签名不变。Config 只用于需要配置读写的字段。',
  'Delete':'独立删除：preview→本机用户审批具体差异→apply。理由文字不是批准。不接受通过Write删除。',
- 'Configure':'缺省Target、范围、锁、文档检查/导出、验证。check_localization 只读检查原生 UE manifest/archive，name 为本地化目标（默认 Game），path 可指定项目内 manifest。不能自行改变维护权限、批准删除、解锁或执行任意命令。'}
+  'Configure':'缺省Target、范围、锁、文档检查/导出、验证。generate_website 按项目配置生成开发者与用户网页，保留翻译命中记录。check_localization 只读检查原生 UE manifest/archive，name 为本地化目标（默认 Game），path 可指定项目内 manifest。不能自行改变维护权限、批准删除、解锁或执行任意命令。'}
 
 def validate(v,rule,at='arguments'):
     ty=rule.get('type');types={'string':str,'integer':int,'number':(int,float),'boolean':bool,'object':dict,'array':list}

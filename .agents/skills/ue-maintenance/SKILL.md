@@ -40,6 +40,12 @@ Doxygen标记由源码格式承担；不要在结构化字段里再重复`@brief
 看到review_signals就针对本次新增机制核查，不等于所有循环/分配都非法；用户明确禁止的模式不能自行降级。
 源码注释单独`Write(kind=comment,fields=...)`，只提交变化的字段；程序负责格式。数据搬运无需顺便补无关函数文档。
 
+## 维护 API 网页
+
+项目 profile 配置 `documentation` 后，使用 `Configure(action=generate_website,audience=both)` 生成网页。developer 使用 C++ 实现和头文件；user 只取按 glob/符号正则选择的公开头文件。参数、返回值和说明来自 Doxygen，代码标识保持原样。
+
+翻译记忆保存原文、原文哈希、译文和审核状态。先读生成结果中的 missing/stale 和对应数据绑定，只补本次缺失或变化的译文，再生成用户页。通过现有 Read/Write 数据入口更新 `translation` 和 `translated_source_hash`；不得把过期译文的哈希改成新值而不核对内容。原文未变的命中直接复用，代码行号变化无需重翻译。接口规则变化时同步维护头文件说明。
+
 写：preview后审阅需要的差异，apply已有plan。plan是修改计划，不是目标身份。
 删：独立Delete；人审阅具体差异批准后才apply。不能提交空值/换名/旧工具/直接磁盘写入来绕过删除审批或锁。
 

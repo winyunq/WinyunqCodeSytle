@@ -11,11 +11,12 @@
 <p>plan：当前预览摘要；history/inventory：源引擎事务与输入信息。</p>
 <h2>Write 对象</h2>
 <p>kind=code/comment/data/asset/function/include。不传kind时可由已有数据名称、rows/import_file或Target补全；函数CPP定义建议显式kind=function。</p>
-<p>operation=modify/add/function/include。注释fields单独修改；函数体没有提供的其他部分保留。asset使用已绑定ue_datatable并要求编辑器连接。</p>
+<p>operation=modify/add/function/include。<code>modify_member</code> 仅增改单个字段的 <code>UPROPERTY(...)</code> 或函数的 <code>UFUNCTION(...)</code> 前置标记；<code>modify_members</code> 可在一个事务中增改同一类型的多个字段标记。两者都比较旧、新声明并拒绝字段或函数签名变化。注释fields单独修改；函数体没有提供的其他部分保留。asset使用已绑定ue_datatable并要求编辑器连接。</p>
 <h2>Delete 对象</h2>
 <p>kind=data/asset/code/symbol/comment/include。数据明确keys；源码/注释明确原片段或已有注释定位。独立符号删除受保留引擎安全范围限制。</p>
 <h2>Configure 动作</h2>
-<p>status、target、parent、child、scope、abort、lock、lock_status、validate、check_comments、export_docs、reindex、approvals、policy。</p>
+<p>status、target、parent、child、scope、abort、lock、lock_status、validate、check_localization、check_comments、export_docs、generate_website、reindex、approvals、policy。</p>
+<p><code>generate_website</code> 按项目 profile 的 <code>documentation</code> 生成定制 Doxygen 网页；<code>audience</code> 为 user/developer/both，<code>languages</code> 可覆盖语言列表。分类、输入与文案由项目配置，MCP 不内置 API 系列。增量翻译通过普通 Read/Write 数据入口维护，见<a href="WEBSITE_ZH.html">生成网页</a>。</p>
 <p>scope仅改变源码查找范围，不扩展批准路径、取消锁或扩大数据绑定。切换范围/Target清除旧计划。policy为文档规则读取；运行维护授权profile只在启动时选择，MCP不能改。</p>
 <h2>实际调用例子</h2>
 <pre><code>{&quot;jsonrpc&quot;:&quot;2.0&quot;,&quot;id&quot;:1,&quot;method&quot;:&quot;tools/call&quot;,&quot;params&quot;:{&quot;name&quot;:&quot;Read&quot;,&quot;arguments&quot;:{&quot;query&quot;:&quot;单位&quot;,&quot;view&quot;:&quot;overview&quot;}}}</code></pre>

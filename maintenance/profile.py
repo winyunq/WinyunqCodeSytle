@@ -10,7 +10,7 @@ class Profile:
         self.root=canonical(root); self.path=Path(path).resolve() if path else None
         self.raw=self.path.read_bytes() if self.path else b''
         self.data=json_load(self.raw.decode('utf-8-sig')) if self.raw else {}
-        allowed={'version','label','mode','code_paths','data','aliases','forbid_added_tokens','validation','require_validation','pinned_files','json_path_patch','ini_tank_protocol_prune'}
+        allowed={'version','label','mode','code_paths','data','aliases','forbid_added_tokens','validation','require_validation','pinned_files','json_path_patch','ini_tank_protocol_prune','documentation'}
         if not isinstance(self.data,dict) or set(self.data)-allowed: raise SafeError('维护配置含未知字段。')
         if self.data.get('version',1)!=1: raise SafeError('配置版本不支持。')
         self.mode=self.data.get('mode','read_only')

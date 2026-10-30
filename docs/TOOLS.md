@@ -31,7 +31,9 @@ kind=data/asset/code/symbol/comment/include。数据明确keys；源码/注释�
 
 ## Configure 动作
 
-status、target、parent、child、scope、abort、lock、lock_status、validate、check_comments、export_docs、reindex、approvals、policy。
+status、target、parent、child、scope、abort、lock、lock_status、validate、check_localization、check_comments、export_docs、generate_website、reindex、approvals、policy。
+
+`generate_website` 按项目 profile 的 `documentation` 生成定制 Doxygen 网页；`audience` 为 user/developer/both，`languages` 可覆盖语言列表。分类、输入与文案由项目配置，MCP 不内置 API 系列。增量翻译通过普通 Read/Write 数据入口维护，见[生成网页](WEBSITE_ZH.md)。
 
 scope仅改变源码查找范围，不扩展批准路径、取消锁或扩大数据绑定。切换范围/Target清除旧计划。policy为文档规则读取；运行维护授权profile只在启动时选择，MCP不能改。
 
