@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "tests": 66,
+  "groups": {
+    "actual_stdio_code": 13,
+    "actual_stdio_data_and_safety": 28,
+    "editor_api_contract_doubles_not_ue": 13,
+    "structural_and_protocol": 6,
+    "delivery_and_format": 6
+  },
+  "source_test_seconds": 89.824,
+  "extracted_package_test_seconds": 92.078,
+  "gui_actual_rpc_requests_including_initialization": 15,
+  "environment": {
+    "os": "Linux",
+    "python": "3.13.5",
+    "doxygen": "1.18.0",
+    "compiler": "g++",
+    "gui": "Tk + Xvfb"
+  },
+  "not_executed": [
+    "Windows installer",
+    "Unreal Editor",
+    "UE/UHT/UBT build",
+    "actual Codex host",
+    "user map migration"
+  ],
+  "native_validation_scope": "portable C++ task fixtures only",
+  "source_archive_sha256": "cca7966e2a5fad464f981b9ba14d111bef1795cc2fb02357cad366b9292d6ddc"
+}

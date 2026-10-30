@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "label": "维护现有A系统：运行行为与成本验收",
+  "mode": "maintain",
+  "data": [
+    {
+      "name": "Units",
+      "path": "Content/Data/Units.json",
+      "format": "json",
+      "key": "Id",
+      "brief": "单位种类、生命值、顾问关联和文本；搬运地图单位数据使用这里。",
+      "consumers": [
+        "Units.json"
+      ],
+      "fields": {
+        "Id": {
+          "type": "string",
+          "description": "原有稳定主键"
+        },
+        "Advisor": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Health": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "Description": {
+          "type": "string"
+        }
+      },
+      "references": {
+        "Advisor": "Advisors"
+      }
+    },
+    {
+      "name": "Advisors",
+      "path": "Content/Data/Advisors.csv",
+      "format": "csv",
+      "key": "Id",
+      "brief": "顾问记录与显示文本，不需要新顾问管理器。",
+      "consumers": [
+        "Advisors.csv"
+      ],
+      "fields": {
+        "Id": {
+          "type": "string"
+        },
+        "Name": {
+          "type": "string"
+        },
+        "Description": {
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "aliases": {
+    "选择数量": [
+      "GetSelectedEntitiesView"
+    ],
+    "单位数量": [
+      "GetSelectedEntitiesView"
+    ]
+  },
+  "code_paths": [
+    "Source/*.cpp",
+    "Source/*.h"
+  ],
+  "forbid_added_tokens": [
+    "TActorIterator",
+    "GetAllActorsOfClass",
+    "SetTimer"
+  ],
+  "require_validation": true,
+  "validation": {
+    "commands": [
+      [
+        "{python}",
+        "{package}/tools/verify_fixture.py",
+        "--project",
+        "{project}"
+      ]
+    ],
+    "timeout_seconds": 90
+  }
+}

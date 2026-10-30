@@ -1,0 +1,1990 @@
+[
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {},
+        "clientInfo": {
+          "name": "Replay-Content",
+          "version": "0.1"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {
+            "listChanged": false
+          }
+        },
+        "serverInfo": {
+          "name": "UnrealMaintenanceMCP",
+          "version": "0.1.0"
+        },
+        "instructions": "Use the ue-maintenance skill. Data/config before new runtime code when existing project data already expresses the request. Reuse existing APIs; add a capability inside its owner only for a demonstrated gap. No forced read ladder. Read directly; Write preview/apply; Delete also needs local approval. Do not route unsupported data edits into C++. Task permissions are user configured, not model claims. Output is single structuredContent; text mode is available for older clients."
+      }
+    },
+    "roundtrip_ms": 1373.488,
+    "request_chars": 161,
+    "response_chars": 674,
+    "request_utf8_bytes": 161
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/list"
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "tools": [
+          {
+            "name": "Read",
+            "description": "发现已有工程能力与数据；默认一个brief，直接选overview/details/rows即可一次读足。Target仅补缺省。",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "本次对象名称；省略用Target，不是强制参数。"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "本次精确路径，不能越过项目。"
+                },
+                "query": {
+                  "type": "string",
+                  "description": "找已有能力或数据入口。"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "code",
+                    "data",
+                    "asset"
+                  ]
+                },
+                "view": {
+                  "type": "string",
+                  "description": "可一次读足，不需要逐层打卡。",
+                  "enum": [
+                    "auto",
+                    "brief",
+                    "overview",
+                    "details",
+                    "documentation",
+                    "code",
+                    "raw",
+                    "comments",
+                    "rows",
+                    "project",
+                    "uses",
+                    "changes",
+                    "history",
+                    "inventory",
+                    "plan"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                },
+                "offset": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "fields": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "where": {
+                  "type": "object"
+                },
+                "select": {
+                  "type": "boolean"
+                },
+                "part": {
+                  "type": "string",
+                  "enum": [
+                    "body",
+                    "declaration",
+                    "definition",
+                    "file_header"
+                  ]
+                },
+                "base": {
+                  "type": "string"
+                },
+                "target": {
+                  "type": "string",
+                  "description": "diff目标，例如WORKTREE/INDEX/PLAN。"
+                },
+                "detail": {
+                  "type": "boolean"
+                }
+              },
+              "additionalProperties": false
+            },
+            "outputSchema": {
+              "type": "object"
+            },
+            "annotations": {
+              "readOnlyHint": true,
+              "destructiveHint": false,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "Write",
+            "description": "增加/编辑既有记录、源码或注释，保留省略内容。preview→apply。内容模式禁止C++；普通函数可只提交CPP同步H。",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "本次对象名称；省略用Target，不是强制参数。"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "本次精确路径，不能越过项目。"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "preview",
+                    "apply"
+                  ]
+                },
+                "plan": {
+                  "type": "string",
+                  "description": "预览计划，不是对象ID。"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "code",
+                    "comment",
+                    "data",
+                    "asset",
+                    "function",
+                    "include"
+                  ]
+                },
+                "old_code": {
+                  "type": "string"
+                },
+                "new_code": {
+                  "type": "string"
+                },
+                "operation": {
+                  "type": "string",
+                  "enum": [
+                    "modify",
+                    "add",
+                    "function",
+                    "include"
+                  ]
+                },
+                "part": {
+                  "type": "string",
+                  "enum": [
+                    "body",
+                    "declaration",
+                    "definition",
+                    "file_header"
+                  ]
+                },
+                "fields": {
+                  "type": "object",
+                  "description": "只改某个Doxygen字段，未给字段保留。"
+                },
+                "rows": {
+                  "type": "array",
+                  "items": {
+                    "type": "object"
+                  },
+                  "description": "按既有主键增改，不删除省略的记录/字段。"
+                },
+                "import_file": {
+                  "type": "string",
+                  "description": "项目内JSON/CSV文件；程序批量读取，不让模型抄全部数据。"
+                },
+                "mapping": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "目标字段:源字段，一次定义导入映射。"
+                },
+                "includes": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "placement": {
+                  "type": "string",
+                  "enum": [
+                    "before",
+                    "after"
+                  ]
+                },
+                "comment_id": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            },
+            "outputSchema": {
+              "type": "object"
+            },
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "Delete",
+            "description": "独立删除：preview→本机用户审批具体差异→apply。理由文字不是批准。不接受通过Write删除。",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "本次对象名称；省略用Target，不是强制参数。"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "本次精确路径，不能越过项目。"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "preview",
+                    "apply"
+                  ]
+                },
+                "plan": {
+                  "type": "string"
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "data",
+                    "asset",
+                    "code",
+                    "symbol",
+                    "comment",
+                    "include"
+                  ]
+                },
+                "keys": {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "integer"
+                    ]
+                  }
+                },
+                "old_code": {
+                  "type": "string"
+                },
+                "part": {
+                  "type": "string",
+                  "enum": [
+                    "body",
+                    "declaration",
+                    "definition",
+                    "file_header"
+                  ]
+                },
+                "comment_id": {
+                  "type": "string"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "删除理由，不是批准凭证。"
+                }
+              },
+              "additionalProperties": false
+            },
+            "outputSchema": {
+              "type": "object"
+            },
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "openWorldHint": false
+            }
+          },
+          {
+            "name": "Configure",
+            "description": "缺省Target、范围、锁、文档检查/导出、验证。不能自行改变维护权限、批准删除、解锁或执行任意命令。",
+            "inputSchema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "本次对象名称；省略用Target，不是强制参数。"
+                },
+                "path": {
+                  "type": "string",
+                  "description": "本次精确路径，不能越过项目。"
+                },
+                "action": {
+                  "type": "string",
+                  "enum": [
+                    "status",
+                    "target",
+                    "parent",
+                    "child",
+                    "scope",
+                    "abort",
+                    "lock",
+                    "lock_status",
+                    "validate",
+                    "check_comments",
+                    "export_docs",
+                    "reindex",
+                    "approvals",
+                    "policy"
+                  ]
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "data",
+                    "asset",
+                    "code"
+                  ]
+                },
+                "reason": {
+                  "type": "string"
+                },
+                "output_format": {
+                  "type": "string",
+                  "enum": [
+                    "html",
+                    "latex",
+                    "pdf"
+                  ]
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 100
+                }
+              },
+              "additionalProperties": false
+            },
+            "outputSchema": {
+              "type": "object"
+            },
+            "annotations": {
+              "readOnlyHint": false,
+              "destructiveHint": true,
+              "openWorldHint": false
+            }
+          }
+        ]
+      }
+    },
+    "roundtrip_ms": 1.043,
+    "request_chars": 46,
+    "response_chars": 4079,
+    "request_utf8_bytes": 46
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+        "name": "Read",
+        "arguments": {
+          "query": "单位"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "name": "Units",
+          "kind": "data",
+          "brief": "单位种类、生命值、顾问关联和文本；搬运地图单位数据使用这里。",
+          "count": 2,
+          "match": "ranked_candidate"
+        }
+      }
+    },
+    "roundtrip_ms": 3.041,
+    "request_chars": 98,
+    "response_chars": 177,
+    "request_utf8_bytes": 102
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "tools/call",
+      "params": {
+        "name": "Read",
+        "arguments": {
+          "view": "overview"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "brief": "单位种类、生命值、顾问关联和文本；搬运地图单位数据使用这里。",
+          "key": "Id",
+          "fields": {
+            "Id": {
+              "type": "string",
+              "description": "原有稳定主键"
+            },
+            "Advisor": {
+              "type": "string"
+            },
+            "Name": {
+              "type": "string"
+            },
+            "Health": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "Description": {
+              "type": "string"
+            }
+          },
+          "count": 2,
+          "existing_use": [
+            {
+              "path": "Config/DefaultGame.ini",
+              "line": 2,
+              "text": "Units=Content/Data/Units.json"
+            }
+          ],
+          "sample": [
+            {
+              "Id": "marine",
+              "Advisor": "military",
+              "Name": "陆战队员",
+              "Health": 45,
+              "Description": "原有单位，保留此说明。"
+            }
+          ],
+          "data_format": "json"
+        }
+      }
+    },
+    "roundtrip_ms": 1.874,
+    "request_chars": 103,
+    "response_chars": 536,
+    "request_utf8_bytes": 103
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "kind": "function",
+          "new_code": "void NewAdvisorManager() {}"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "本次为内容维护：不允许修改运行代码。先使用已有数据入口；不能绕到 C++。"
+          }
+        ]
+      }
+    },
+    "roundtrip_ms": 0.561,
+    "request_chars": 145,
+    "response_chars": 125,
+    "request_utf8_bytes": 145
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "method": "tools/call",
+      "params": {
+        "name": "Read",
+        "arguments": {
+          "name": "Advisors",
+          "view": "overview"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "brief": "顾问记录与显示文本，不需要新顾问管理器。",
+          "key": "Id",
+          "fields": {
+            "Id": {
+              "type": "string"
+            },
+            "Name": {
+              "type": "string"
+            },
+            "Description": {
+              "type": "string"
+            }
+          },
+          "count": 2,
+          "existing_use": [
+            {
+              "path": "Config/DefaultGame.ini",
+              "line": 3,
+              "text": "Advisors=Content/Data/Advisors.csv"
+            }
+          ],
+          "sample": [
+            {
+              "Id": "military",
+              "Name": "军事顾问",
+              "Description": "负责单位信息"
+            }
+          ],
+          "data_format": "csv"
+        }
+      }
+    },
+    "roundtrip_ms": 1.866,
+    "request_chars": 121,
+    "response_chars": 403,
+    "request_utf8_bytes": 121
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "import_file": "Incoming/MapUnits.json",
+          "mapping": {
+            "Id": "UnitId",
+            "Advisor": "AdvisorId",
+            "Name": "DisplayName",
+            "Health": "HitPoints",
+            "Description": "Text"
+          }
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "plan": "79215265c463410dae90",
+          "name": "Units",
+          "changed_rows": 2,
+          "rows": [
+            {
+              "key": "marine",
+              "change": "edit",
+              "fields": {
+                "Name": {
+                  "before": "陆战队员",
+                  "after": "陆战队员（导入）"
+                },
+                "Health": {
+                  "before": 45,
+                  "after": 50
+                },
+                "Description": {
+                  "before": "原有单位，保留此说明。",
+                  "after": "从源数据搬运的文本。"
+                }
+              }
+            },
+            {
+              "key": "medic",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "medic"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "医疗兵"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 60
+                },
+                "Description": {
+                  "before": null,
+                  "after": "来自源数据的新单位。"
+                }
+              }
+            }
+          ],
+          "unchanged_rows": 1,
+          "runtime_code_changed": false,
+          "full_changes_local": false
+        }
+      }
+    },
+    "roundtrip_ms": 2.841,
+    "request_chars": 236,
+    "response_chars": 665,
+    "request_utf8_bytes": 236
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "79215265c463410dae90"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "applied",
+          "files": [
+            "Content/Data/Units.json"
+          ],
+          "validation": "not_configured"
+        }
+      }
+    },
+    "roundtrip_ms": 3.159,
+    "request_chars": 133,
+    "response_chars": 155,
+    "request_utf8_bytes": 133
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "import_file": "Incoming/MapUnits.json",
+          "mapping": {
+            "Id": "UnitId",
+            "Advisor": "AdvisorId",
+            "Name": "DisplayName",
+            "Health": "HitPoints",
+            "Description": "Text"
+          }
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "unchanged",
+          "changed_rows": 0
+        }
+      }
+    },
+    "roundtrip_ms": 1.506,
+    "request_chars": 236,
+    "response_chars": 108,
+    "request_utf8_bytes": 236
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Units",
+          "import_file": "Incoming/Bulk.json",
+          "mapping": {
+            "Id": "Id",
+            "Advisor": "Advisor",
+            "Name": "Name",
+            "Health": "Health",
+            "Description": "Description"
+          }
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "plan": "61e3a1b6213844e49512",
+          "name": "Units",
+          "changed_rows": 4000,
+          "rows": [
+            {
+              "key": "bulk0",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk0"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位0"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 0
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk1",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk1"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位1"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 1
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk2",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk2"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位2"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 2
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk3",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk3"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位3"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 3
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk4",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk4"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位4"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 4
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk5",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk5"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位5"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 5
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk6",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk6"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位6"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 6
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk7",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk7"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位7"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 7
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk8",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk8"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位8"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 8
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk9",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk9"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位9"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 9
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk10",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk10"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位10"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 10
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk11",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk11"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位11"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 11
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk12",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk12"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位12"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 12
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk13",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk13"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位13"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 13
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk14",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk14"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位14"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 14
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk15",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk15"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位15"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 15
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk16",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk16"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位16"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 16
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk17",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk17"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位17"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 17
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk18",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk18"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位18"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 18
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            },
+            {
+              "key": "bulk19",
+              "change": "add",
+              "fields": {
+                "Id": {
+                  "before": null,
+                  "after": "bulk19"
+                },
+                "Advisor": {
+                  "before": null,
+                  "after": "military"
+                },
+                "Name": {
+                  "before": null,
+                  "after": "单位19"
+                },
+                "Health": {
+                  "before": null,
+                  "after": 19
+                },
+                "Description": {
+                  "before": null,
+                  "after": "批量文本"
+                }
+              }
+            }
+          ],
+          "unchanged_rows": 3,
+          "runtime_code_changed": false,
+          "full_changes_local": true
+        }
+      }
+    },
+    "roundtrip_ms": 344.337,
+    "request_chars": 239,
+    "response_chars": 5098,
+    "request_utf8_bytes": 239
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "method": "tools/call",
+      "params": {
+        "name": "Configure",
+        "arguments": {
+          "action": "abort"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "aborted"
+        }
+      }
+    },
+    "roundtrip_ms": 0.955,
+    "request_chars": 108,
+    "response_chars": 90,
+    "request_utf8_bytes": 108
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {},
+        "clientInfo": {
+          "name": "Replay-CompileOnly-NegativeControl",
+          "version": "0.1"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {
+            "listChanged": false
+          }
+        },
+        "serverInfo": {
+          "name": "UnrealMaintenanceMCP",
+          "version": "0.1.0"
+        },
+        "instructions": "Use the ue-maintenance skill. Data/config before new runtime code when existing project data already expresses the request. Reuse existing APIs; add a capability inside its owner only for a demonstrated gap. No forced read ladder. Read directly; Write preview/apply; Delete also needs local approval. Do not route unsupported data edits into C++. Task permissions are user configured, not model claims. Output is single structuredContent; text mode is available for older clients."
+      }
+    },
+    "roundtrip_ms": 1198.801,
+    "request_chars": 181,
+    "response_chars": 674,
+    "request_utf8_bytes": 181
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Fixture::HUD::GetSelectedCount",
+          "old_code": "return ExistingSelection.GetSelectedEntitiesView().Num();",
+          "new_code": "int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/HUD.cpp",
+              "diff": "--- Source/HUD.cpp / before\n+++ Source/HUD.cpp / after\n@@ -1 +1 @@\n-return ExistingSelection.GetSelectedEntitiesView().Num();\n+int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;"
+            }
+          ],
+          "plan": "99478e6f2f644ba5a832"
+        }
+      }
+    },
+    "roundtrip_ms": 84.603,
+    "request_chars": 322,
+    "response_chars": 422,
+    "request_utf8_bytes": 322
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "99478e6f2f644ba5a832"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "applied",
+          "files": [
+            "Source/HUD.cpp"
+          ],
+          "validation": "passed"
+        }
+      }
+    },
+    "roundtrip_ms": 2886.775,
+    "request_chars": 133,
+    "response_chars": 138,
+    "request_utf8_bytes": 133
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "method": "initialize",
+      "params": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {},
+        "clientInfo": {
+          "name": "Replay-Maintain",
+          "version": "0.1"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 1,
+      "result": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {
+            "listChanged": false
+          }
+        },
+        "serverInfo": {
+          "name": "UnrealMaintenanceMCP",
+          "version": "0.1.0"
+        },
+        "instructions": "Use the ue-maintenance skill. Data/config before new runtime code when existing project data already expresses the request. Reuse existing APIs; add a capability inside its owner only for a demonstrated gap. No forced read ladder. Read directly; Write preview/apply; Delete also needs local approval. Do not route unsupported data edits into C++. Task permissions are user configured, not model claims. Output is single structuredContent; text mode is available for older clients."
+      }
+    },
+    "roundtrip_ms": 1205.062,
+    "request_chars": 162,
+    "response_chars": 674,
+    "request_utf8_bytes": 162
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "method": "tools/call",
+      "params": {
+        "name": "Read",
+        "arguments": {
+          "query": "zero copy selected entities",
+          "view": "overview"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 2,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "name": "Fixture::Selection::GetSelectedEntitiesView",
+          "kind": "code",
+          "signature": "const EntityList & Fixture::Selection::GetSelectedEntitiesView() const;",
+          "brief": "Zero-copy native view for per-frame systems.",
+          "returns": "Existing selection owned by this subsystem; do not maintain another selection list.",
+          "match": "ranked_candidate"
+        }
+      }
+    },
+    "roundtrip_ms": 85.323,
+    "request_chars": 141,
+    "response_chars": 401,
+    "request_utf8_bytes": 141
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Fixture::HUD::GetSelectedCount",
+          "old_code": "int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;",
+          "new_code": "return ExistingSelection.GetSelectedEntitiesView().Num();"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 3,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/HUD.cpp",
+              "diff": "--- Source/HUD.cpp / before\n+++ Source/HUD.cpp / after\n@@ -1 +1 @@\n-int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;\n+return ExistingSelection.GetSelectedEntitiesView().Num();"
+            }
+          ],
+          "plan": "0841539b87b343bdb443"
+        }
+      }
+    },
+    "roundtrip_ms": 8.702,
+    "request_chars": 322,
+    "response_chars": 422,
+    "request_utf8_bytes": 322
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "0841539b87b343bdb443"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 4,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "applied",
+          "files": [
+            "Source/HUD.cpp"
+          ],
+          "validation": "passed"
+        }
+      }
+    },
+    "roundtrip_ms": 3038.931,
+    "request_chars": 133,
+    "response_chars": 138,
+    "request_utf8_bytes": 133
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Fixture::HUD::GetSelectedCount",
+          "old_code": "return ExistingSelection.GetSelectedEntitiesView().Num();",
+          "new_code": "int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 5,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/HUD.cpp",
+              "diff": "--- Source/HUD.cpp / before\n+++ Source/HUD.cpp / after\n@@ -1 +1 @@\n-return ExistingSelection.GetSelectedEntitiesView().Num();\n+int n=0; for(int e:ExistingSelection.GetAllEntities()){if(ExistingSelection.IsEntitySelected(e))++n;} return n;"
+            }
+          ],
+          "plan": "d1d52870bcbd46be9017"
+        }
+      }
+    },
+    "roundtrip_ms": 80.014,
+    "request_chars": 322,
+    "response_chars": 422,
+    "request_utf8_bytes": 322
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "d1d52870bcbd46be9017"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 6,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402569841013292/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":9,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":0,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":17,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num()."
+          }
+        ]
+      }
+    },
+    "roundtrip_ms": 2830.203,
+    "request_chars": 133,
+    "response_chars": 998,
+    "request_utf8_bytes": 133
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Fixture::HUD::GetSelectedCount",
+          "old_code": "return ExistingSelection.GetSelectedEntitiesView().Num();",
+          "new_code": "return ExistingSelection.GetSelectedEntities().Num();"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 7,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/HUD.cpp",
+              "diff": "--- Source/HUD.cpp / before\n+++ Source/HUD.cpp / after\n@@ -1 +1 @@\n-return ExistingSelection.GetSelectedEntitiesView().Num();\n+return ExistingSelection.GetSelectedEntities().Num();"
+            }
+          ],
+          "plan": "13f38b0c259f4f9987d9"
+        }
+      }
+    },
+    "roundtrip_ms": 92.921,
+    "request_chars": 264,
+    "response_chars": 364,
+    "request_utf8_bytes": 264
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "13f38b0c259f4f9987d9"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 8,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402572765319019/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":9,\"actual\":9,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":0,\"actual\":0,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":17,\"actual\":17,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num()."
+          }
+        ]
+      }
+    },
+    "roundtrip_ms": 2931.376,
+    "request_chars": 133,
+    "response_chars": 978,
+    "request_utf8_bytes": 133
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "Fixture::HUD::GetSelectedCount",
+          "old_code": "return ExistingSelection.GetSelectedEntitiesView().Num();",
+          "new_code": "static int n=ExistingSelection.GetSelectedEntitiesView().Num(); return n;"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 9,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/HUD.cpp",
+              "diff": "--- Source/HUD.cpp / before\n+++ Source/HUD.cpp / after\n@@ -1 +1 @@\n-return ExistingSelection.GetSelectedEntitiesView().Num();\n+static int n=ExistingSelection.GetSelectedEntitiesView().Num(); return n;"
+            }
+          ],
+          "plan": "f4313af13bdf431b8d8e",
+          "review_signals": [
+            {
+              "introduced": "static",
+              "count": 1
+            }
+          ]
+        }
+      }
+    },
+    "roundtrip_ms": 75.155,
+    "request_chars": 284,
+    "response_chars": 437,
+    "request_utf8_bytes": 284
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "f4313af13bdf431b8d8e"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 10,
+      "result": {
+        "isError": true,
+        "content": [
+          {
+            "type": "text",
+            "text": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402575772628715/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num()."
+          }
+        ]
+      }
+    },
+    "roundtrip_ms": 3048.616,
+    "request_chars": 134,
+    "response_chars": 978,
+    "request_utf8_bytes": 134
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "name": "A::Normalize",
+          "old_code": "return x + 0;",
+          "new_code": "return x;"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 11,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "files": [
+            {
+              "file": "Source/A.cpp",
+              "diff": "--- Source/A.cpp / before\n+++ Source/A.cpp / after\n@@ -1 +1 @@\n-return x + 0;\n+return x;"
+            }
+          ],
+          "plan": "b6cf270ad52741048ad5"
+        }
+      }
+    },
+    "roundtrip_ms": 80.066,
+    "request_chars": 159,
+    "response_chars": 271,
+    "request_utf8_bytes": 159
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 12,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "b6cf270ad52741048ad5"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 12,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "applied",
+          "files": [
+            "Source/A.cpp"
+          ],
+          "validation": "passed"
+        }
+      }
+    },
+    "roundtrip_ms": 3182.545,
+    "request_chars": 134,
+    "response_chars": 137,
+    "request_utf8_bytes": 134
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 13,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "kind": "function",
+          "new_code": "#include <algorithm>\nint A::ClampStep(int x) const { return std::clamp(Normalize(x),0,100); }"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 13,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "preview",
+          "locked": false,
+          "header_synced": "Source/A.h",
+          "function": "A::ClampStep",
+          "documentation_review": "签名/接口改变；保留既有说明，使用 check_comments 检查参数文档。",
+          "files": [
+            {
+              "file": "Source/A.h",
+              "diff": "--- Source/A.h / before\n+++ Source/A.h / after\n@@ -18,4 +18,6 @@\n      * @return 输入的两倍。\n      */\n     int Sibling(int x) const;\n+\n+    int ClampStep(int x) const;\n };"
+            },
+            {
+              "file": "Source/A.cpp",
+              "diff": "--- Source/A.cpp / before\n+++ Source/A.cpp / after\n@@ -1,4 +1,5 @@\n #include \"A.h\"\n+#include <algorithm>\n \n int A::Normalize(int x) const\n {\n@@ -10,3 +11,5 @@\n {\n     return x * 2;\n }\n+\n+int A::ClampStep(int x) const { return std::clamp(Normalize(x),0,100); }"
+            }
+          ],
+          "plan": "915c554fe9fd4f2abef7"
+        }
+      }
+    },
+    "roundtrip_ms": 76.961,
+    "request_chars": 213,
+    "response_chars": 780,
+    "request_utf8_bytes": 213
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 14,
+      "method": "tools/call",
+      "params": {
+        "name": "Read",
+        "arguments": {
+          "view": "changes",
+          "target": "PLAN"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 14,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "base": "WORKTREE",
+          "target": "PLAN:915c554fe9fd4f2abef7",
+          "functions": [
+            {
+              "name": "A::ClampStep",
+              "change": "added",
+              "facets": [],
+              "paths": [
+                "Source/A.cpp",
+                "Source/A.h"
+              ],
+              "signature": "int A::ClampStep(int x) const;",
+              "documentation_check": "required"
+            }
+          ],
+          "total_functions": 1,
+          "next_offset": null,
+          "unclassified": [
+            {
+              "path": "Source/A.cpp",
+              "reason": "outside_function_or_unparsed"
+            }
+          ],
+          "unclassified_total": 2,
+          "unresolved": [],
+          "unresolved_total": 0,
+          "changed_files": 2,
+          "basis": "Git原始字节+双侧Doxygen索引+函数范围复核；不是编译器级重构证明",
+          "report": "/mnt/data/rebuild/replay-final/state/DoxygenUE/408bb258e2f626d748af/change-reports/5754d053754e20d46f30.json"
+        }
+      }
+    },
+    "roundtrip_ms": 186.253,
+    "request_chars": 119,
+    "response_chars": 675,
+    "request_utf8_bytes": 119
+  },
+  {
+    "request": {
+      "jsonrpc": "2.0",
+      "id": 15,
+      "method": "tools/call",
+      "params": {
+        "name": "Write",
+        "arguments": {
+          "action": "apply",
+          "plan": "915c554fe9fd4f2abef7"
+        }
+      }
+    },
+    "response": {
+      "jsonrpc": "2.0",
+      "id": 15,
+      "result": {
+        "content": [],
+        "structuredContent": {
+          "status": "applied",
+          "files": [
+            "Source/A.h",
+            "Source/A.cpp"
+          ],
+          "validation": "passed"
+        }
+      }
+    },
+    "roundtrip_ms": 3181.271,
+    "request_chars": 134,
+    "response_chars": 150,
+    "request_utf8_bytes": 134
+  }
+]

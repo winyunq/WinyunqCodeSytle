@@ -1,0 +1,14 @@
+{
+  "source_engine": "DoxygenUnrealEngine-0.3.0-source.zip plus DoxygenUE-0.3.0-reuse-regression.patch supplied in this conversation",
+  "doxygen_tested": "1.18.0 (8e760943e5d9581a444cf327f43a0b4d20d29482*) official CI Linux artifact supplied in conversation",
+  "windows_runtime": {
+    "url": "https://github.com/doxygen/doxygen/releases/download/Release_1_18_0/doxygen-1.18.0.windows.x64.bin.zip",
+    "sha256": "e84f54cfd49ef06b0b16536056dbec0c496323de28abcce53a4269463de35eaf"
+  },
+  "ue_api_reference": "Epic official Python 5.7 docs; not executed in Unreal in this environment",
+  "reused_source": {
+    "archive": "DoxygenUnrealEngine-0.3.0-source.zip",
+    "sha256": "4408272df17d34b12d02de515700a31ef2581d22bb78ac22785f9e0eb6ccbab0",
+    "applied_regression_sha256": "14788e9f05d3642f299eda6f1b20a571c404ca7584b18eb02afe9662ebb4560c"
+  }
+}

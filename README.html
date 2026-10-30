@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>README</title><style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;margin:0;color:#1f2937;background:#f4f6fa;line-height:1.75}main{max-width:1020px;margin:auto;background:white;padding:38px 50px 70px}nav{background:#152a40;color:white;padding:16px 30px}a{color:#146378}nav a{color:white;margin-right:24px}h1{font-size:28px;border-bottom:3px solid #146378;padding-bottom:18px}h2{margin-top:36px;font-size:22px}h3{font-size:18px}pre{overflow:auto;background:#eef3f7;padding:18px;border-left:4px solid #146378;font-size:14px;line-height:1.65}code{font-family:Consolas,monospace;font-size:0.91em}p code{background:#eef3f7;padding:2px 4px}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th,td{border:1px solid #d4dde5;text-align:left;padding:10px;vertical-align:top}th{background:#eaf2f6}img{max-width:100%}.muted{color:#526577;font-size:14px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#eef3f7;padding:18px;border-radius:5px}@media(max-width:700px){main{padding:22px}.cards{grid-template-columns:1fr}table{font-size:12px}}</style><nav><a href="index.html">UnrealEngineCPPCodingMCP 0.1.0</a><span>本地使用手册 · 无外部资源</span></nav><main><h1>UnrealEngineCPPCodingMCP 0.1.0</h1>
+<p>面向 UE5 工程的 C++ 代码 MCP。</p>
+<p>这是新的独立交付，不覆盖 DoxygenUnrealEngine 0.3.0，也不是 Doxygen 内核 fork。保留了既有、已验证的 Doxygen/C++ 局部编辑引擎；新入口把项目数据与源码放进同一套 <b>Read / Write / Delete / Configure</b>。Skill 决定解决问题的顺序，程序执行可验证的范围、字段、版本、锁和任务测试。</p>
+<h2>先运行实际例子</h2>
+<p>需要 CPython 3.10+。GUI 需要 Tk（Windows 官方 Python 安装选项 Tcl/Tk）；运行产品不需要 pip。数据模式不需要 Doxygen。代码功能需要 Doxygen；便携 C++ 验收需要 g++ 或 clang++，不是 UE 构建。</p>
+<p>1. 解压，双击 <code>Start-GUI.cmd</code>，点击“新建演示副本”。它只复制包内例子到新临时目录。</p>
+<p>2. 搜索“单位”，选 <code>overview</code>。看到既有 Units 数据入口，增改页填 rows 或源文件映射，先预览再提交。切勿把演示字段照搬到实际游戏。</p>
+<p>3. 代码演示需要 Doxygen：已有程序可选择路径；没有则运行 <code>Bootstrap-Doxygen.cmd</code>（下载固定官方 Windows 版本并核对 SHA256）。在演示中切换“代码维护模式”。</p>
+<p>4. <code>Run-Demo.cmd</code> 自动重放三种任务及反例，最后打印实际项目副本和日志路径。<code>Run-Tests.cmd</code> 跑回归。测试没有安装 Doxygen 时，代码类测试会明确跳过，不能据此声称全部路径通过。</p>
+<p>Linux/macOS：<code>python Run.py gui</code>。显式配置：</p>
+<pre><code>python Run.py server --project /path/to/project --profile /path/to/approved-profile.json --doxygen /path/to/doxygen --state-db /outside/project/state.sqlite3</code></pre>
+<h2>交付包含什么</h2>
+<p>既有 JSON/CSV 表：按主键增改；省略记录和字段保留；映射批量文件，不经过模型抄写全部数据。主键、类型、引用、源码范围和任务测试由用户选定的本地 profile 决定。</p>
+<p>既有 C++：搜索 brief/概览/完整文档、正常缩短编辑、普通成员 CPP/H 同步、include、源码注释字段、函数差异；真实编译/任务验证失败回滚。</p>
+<p>UE：保留 UFUNCTION 调用语义、模块依赖文字证据、Content/配置可见；附编辑器内执行的真实 DataTable 适配器。该适配器在此环境只执行 API 契约测试，未在 UE 中执行。</p>
+<p>本地 GUI：真实 MCP 请求和返回；锁、独立删除审批、源码事务恢复；Codex 配置文本与 Skill 安装。默认只有一份结构化返回，旧客户端可启用单份 text 模式。</p>
+<p>Skill：数据能表达就改数据；接口能满足就调用；确实缺少能力才扩展拥有该职责的系统。没有强制阅读阶梯、target_id、搜索凭证或每次填写的设计报告。</p>
+<h2>核心限制</h2>
+<p>这是有明确支持范围的实现，不是自动架构证明器。<code>forbid_added_tokens</code> 只是用户已知模式的词法门禁；未知的职责重复依赖工程证据、Skill 判断与实际任务验证。附带的计数成本测试只是一个反例验收，不是任意项目自动生成的性能标准。</p>
+<p>不支持 SQLite/SQL 写入、INI 写入、星际地图二进制格式解码、任意 UAsset/Blueprint 图修改、全量 C++ 调用点重构或完整 UHT 语义。输入文件单个最多16 MiB、表最多100000行；源码索引首次扫描和变化重建的整 UE 工程性能没有测量。不要以例子的速度推断真实项目。</p>
+<p>同一系统账户的任意 Shell 权限可以绕开此 MCP。GUI 点击不是 OS 身份认证。没有连接实际 UE 时，资产操作明确失败，不伪造结果，也不改 C++ 兜底。</p>
+<h2>文档</h2>
+<p><a href="docs/MANUAL_ZH.html">使用手册</a></p>
+<p><a href="docs/TOOLS.html">四工具实际清单</a> / <a href="docs/TOOLS.json">运行中 tools/list</a></p>
+<p><a href="docs/PROFILE_ZH.html">配置已有项目</a></p>
+<p><a href="editor/README.html">UE 编辑器 DataTable 通道</a></p>
+<p><a href="docs/ACCEPTANCE_ZH.html">可控范围与验收</a></p>
+<p><a href=".agents/skills/ue-maintenance/SKILL.md">Skill</a></p>
+<p><a href="evidence/README.md">证据</a></p>
+<p><code>Install-Windows.cmd</code> 是 Python 本地安装脚本，不是自包含 Setup.exe；它校验清单，安装到新的版本目录，不覆盖旧目录，不改用户项目。没有在 Windows 做过安装验收。见 NOTICE.md 的来源和许可边界。</p></main></html>

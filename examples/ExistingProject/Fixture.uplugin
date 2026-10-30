@@ -1,0 +1,12 @@
+{
+  "FileVersion": 3,
+  "FriendlyName": "Native maintenance test layout (not a runnable UE plugin)",
+  "Version": 1,
+  "Modules": [
+    {
+      "Name": "Fixture",
+      "Type": "Runtime"
+    }
+  ],
+  "CanContainContent": true
+}

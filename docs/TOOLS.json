@@ -1,0 +1,357 @@
+{
+  "tools": [
+    {
+      "name": "Read",
+      "description": "发现已有工程能力与数据；默认一个brief，直接选overview/details/rows即可一次读足。Target仅补缺省。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "本次对象名称；省略用Target，不是强制参数。"
+          },
+          "path": {
+            "type": "string",
+            "description": "本次精确路径，不能越过项目。"
+          },
+          "query": {
+            "type": "string",
+            "description": "找已有能力或数据入口。"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "code",
+              "data",
+              "asset"
+            ]
+          },
+          "view": {
+            "type": "string",
+            "description": "可一次读足，不需要逐层打卡。",
+            "enum": [
+              "auto",
+              "brief",
+              "overview",
+              "details",
+              "documentation",
+              "code",
+              "raw",
+              "comments",
+              "rows",
+              "project",
+              "uses",
+              "changes",
+              "history",
+              "inventory",
+              "plan"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "fields": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "where": {
+            "type": "object"
+          },
+          "select": {
+            "type": "boolean"
+          },
+          "part": {
+            "type": "string",
+            "enum": [
+              "body",
+              "declaration",
+              "definition",
+              "file_header"
+            ]
+          },
+          "base": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string",
+            "description": "diff目标，例如WORKTREE/INDEX/PLAN。"
+          },
+          "detail": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "Write",
+      "description": "增加/编辑既有记录、源码或注释，保留省略内容。preview→apply。内容模式禁止C++；普通函数可只提交CPP同步H。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "本次对象名称；省略用Target，不是强制参数。"
+          },
+          "path": {
+            "type": "string",
+            "description": "本次精确路径，不能越过项目。"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "preview",
+              "apply"
+            ]
+          },
+          "plan": {
+            "type": "string",
+            "description": "预览计划，不是对象ID。"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "code",
+              "comment",
+              "data",
+              "asset",
+              "function",
+              "include"
+            ]
+          },
+          "old_code": {
+            "type": "string"
+          },
+          "new_code": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "modify",
+              "add",
+              "function",
+              "include"
+            ]
+          },
+          "part": {
+            "type": "string",
+            "enum": [
+              "body",
+              "declaration",
+              "definition",
+              "file_header"
+            ]
+          },
+          "fields": {
+            "type": "object",
+            "description": "只改某个Doxygen字段，未给字段保留。"
+          },
+          "rows": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "按既有主键增改，不删除省略的记录/字段。"
+          },
+          "import_file": {
+            "type": "string",
+            "description": "项目内JSON/CSV文件；程序批量读取，不让模型抄全部数据。"
+          },
+          "mapping": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            },
+            "description": "目标字段:源字段，一次定义导入映射。"
+          },
+          "includes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "placement": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after"
+            ]
+          },
+          "comment_id": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "Delete",
+      "description": "独立删除：preview→本机用户审批具体差异→apply。理由文字不是批准。不接受通过Write删除。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "本次对象名称；省略用Target，不是强制参数。"
+          },
+          "path": {
+            "type": "string",
+            "description": "本次精确路径，不能越过项目。"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "preview",
+              "apply"
+            ]
+          },
+          "plan": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "data",
+              "asset",
+              "code",
+              "symbol",
+              "comment",
+              "include"
+            ]
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": [
+                "string",
+                "integer"
+              ]
+            }
+          },
+          "old_code": {
+            "type": "string"
+          },
+          "part": {
+            "type": "string",
+            "enum": [
+              "body",
+              "declaration",
+              "definition",
+              "file_header"
+            ]
+          },
+          "comment_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "description": "删除理由，不是批准凭证。"
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "Configure",
+      "description": "缺省Target、范围、锁、文档检查/导出、验证。不能自行改变维护权限、批准删除、解锁或执行任意命令。",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "本次对象名称；省略用Target，不是强制参数。"
+          },
+          "path": {
+            "type": "string",
+            "description": "本次精确路径，不能越过项目。"
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "status",
+              "target",
+              "parent",
+              "child",
+              "scope",
+              "abort",
+              "lock",
+              "lock_status",
+              "validate",
+              "check_comments",
+              "export_docs",
+              "reindex",
+              "approvals",
+              "policy"
+            ]
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "data",
+              "asset",
+              "code"
+            ]
+          },
+          "reason": {
+            "type": "string"
+          },
+          "output_format": {
+            "type": "string",
+            "enum": [
+              "html",
+              "latex",
+              "pdf"
+            ]
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "additionalProperties": false
+      },
+      "outputSchema": {
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "openWorldHint": false
+      }
+    }
+  ]
+}

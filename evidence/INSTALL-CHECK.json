@@ -1,0 +1,22 @@
+{
+  "platform": "linux",
+  "status": "passed",
+  "fresh_manifest_install": "Install to: /mnt/data/rebuild/installed-check\nInstalled: /mnt/data/rebuild/installed-check\n",
+  "existing_destination_refused": true,
+  "corrupt_payload_refused_before_writing": true,
+  "installed_real_stdio_read": {
+    "jsonrpc": "2.0",
+    "id": 2,
+    "result": {
+      "content": [],
+      "structuredContent": {
+        "name": "Units",
+        "kind": "data",
+        "brief": "单位种类、生命值、顾问关联和文本；搬运地图单位数据使用这里。",
+        "count": 2,
+        "match": "ranked_candidate"
+      }
+    }
+  },
+  "windows_executed": false
+}

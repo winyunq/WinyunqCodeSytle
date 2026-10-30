@@ -1,0 +1,139 @@
+{
+  "environment": {
+    "python": "3.13.5",
+    "platform": "linux",
+    "ue_editor_executed": false,
+    "doxygen": "1.18.0 (8e760943e5d9581a444cf327f43a0b4d20d29482*)"
+  },
+  "scenarios": {
+    "content": {
+      "query": {
+        "name": "Units",
+        "kind": "data",
+        "brief": "单位种类、生命值、顾问关联和文本；搬运地图单位数据使用这里。",
+        "count": 2,
+        "match": "ranked_candidate"
+      },
+      "profile_code_refusal": "本次为内容维护：不允许修改运行代码。先使用已有数据入口；不能绕到 C++。",
+      "changed_rows": 2,
+      "repeat": {
+        "status": "unchanged",
+        "changed_rows": 0
+      },
+      "runtime_hashes_before": {
+        "Source/Selection.h": "06b30bd4cd9a0c05d2628b7d23ef6089bc24d03f0833f9afc5072665f26b13cc",
+        "Source/A.h": "7e12f0afbd17751e60106c1ef0288603583817d3a19464a8e7d86b3255b60506",
+        "Source/A.cpp": "ea964f28e2bc97d8c78f48d96d0d9f0e5c6cdf9cf9803c405b986603fe48eb47",
+        "Source/HUD.cpp": "bd7de811498f407f28387372ba62bee4022a0a7c7d3d30ab89651dc9b934c2cf",
+        "Source/Fixture.Build.cs": "922a23d2261ce1b1eb5a0cbb00bef3444d7ca38a82999c8cec93035c89c0a4d3"
+      },
+      "runtime_hashes_after": {
+        "Source/Selection.h": "06b30bd4cd9a0c05d2628b7d23ef6089bc24d03f0833f9afc5072665f26b13cc",
+        "Source/A.h": "7e12f0afbd17751e60106c1ef0288603583817d3a19464a8e7d86b3255b60506",
+        "Source/A.cpp": "ea964f28e2bc97d8c78f48d96d0d9f0e5c6cdf9cf9803c405b986603fe48eb47",
+        "Source/HUD.cpp": "bd7de811498f407f28387372ba62bee4022a0a7c7d3d30ab89651dc9b934c2cf",
+        "Source/Fixture.Build.cs": "922a23d2261ce1b1eb5a0cbb00bef3444d7ca38a82999c8cec93035c89c0a4d3"
+      },
+      "omitted_row_preserved": true,
+      "doxygen_needed": false
+    },
+    "reuse": {
+      "existing_api": {
+        "name": "Fixture::Selection::GetSelectedEntitiesView",
+        "kind": "code",
+        "signature": "const EntityList & Fixture::Selection::GetSelectedEntitiesView() const;",
+        "brief": "Zero-copy native view for per-frame systems.",
+        "returns": "Existing selection owned by this subsystem; do not maintain another selection list.",
+        "match": "ranked_candidate"
+      },
+      "accepted_implementation": "return ExistingSelection.GetSelectedEntitiesView().Num();",
+      "verification": "passed",
+      "negative_cases": [
+        {
+          "case": "world_scan",
+          "rejected": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402569841013292/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":9,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":0,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":17,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num().",
+          "all_source_bytes_rolled_back": true
+        },
+        {
+          "case": "copy",
+          "rejected": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402572765319019/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":9,\"actual\":9,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":0,\"actual\":0,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1},{\"expected\":17,\"actual\":17,\"world_membership_queries\":0,\"selection_copies\":1,\"allocations\":1}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num().",
+          "all_source_bytes_rolled_back": true
+        },
+        {
+          "case": "stale_cache",
+          "rejected": "编译/测试失败，源码事务将回滚（显式validate不写源码）；完整日志：/mnt/data/rebuild/replay-final/state/validation/1789402575772628715/0.log\n验证输出：\n{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num().",
+          "all_source_bytes_rolled_back": true
+        }
+      ]
+    },
+    "extend_owner": {
+      "cpp_only_input": "#include <algorithm>\nint A::ClampStep(int x) const { return std::clamp(Normalize(x),0,100); }",
+      "plan": {
+        "status": "preview",
+        "locked": false,
+        "header_synced": "Source/A.h",
+        "function": "A::ClampStep",
+        "documentation_review": "签名/接口改变；保留既有说明，使用 check_comments 检查参数文档。",
+        "files": [
+          {
+            "file": "Source/A.h",
+            "diff": "--- Source/A.h / before\n+++ Source/A.h / after\n@@ -18,4 +18,6 @@\n      * @return 输入的两倍。\n      */\n     int Sibling(int x) const;\n+\n+    int ClampStep(int x) const;\n };"
+          },
+          {
+            "file": "Source/A.cpp",
+            "diff": "--- Source/A.cpp / before\n+++ Source/A.cpp / after\n@@ -1,4 +1,5 @@\n #include \"A.h\"\n+#include <algorithm>\n \n int A::Normalize(int x) const\n {\n@@ -10,3 +11,5 @@\n {\n     return x * 2;\n }\n+\n+int A::ClampStep(int x) const { return std::clamp(Normalize(x),0,100); }"
+          }
+        ],
+        "plan": "915c554fe9fd4f2abef7"
+      },
+      "function_diff": {
+        "base": "WORKTREE",
+        "target": "PLAN:915c554fe9fd4f2abef7",
+        "functions": [
+          {
+            "name": "A::ClampStep",
+            "change": "added",
+            "facets": [],
+            "paths": [
+              "Source/A.cpp",
+              "Source/A.h"
+            ],
+            "signature": "int A::ClampStep(int x) const;",
+            "documentation_check": "required"
+          }
+        ],
+        "total_functions": 1,
+        "next_offset": null,
+        "unclassified": [
+          {
+            "path": "Source/A.cpp",
+            "reason": "outside_function_or_unparsed"
+          }
+        ],
+        "unclassified_total": 2,
+        "unresolved": [],
+        "unresolved_total": 0,
+        "changed_files": 2,
+        "basis": "Git原始字节+双侧Doxygen索引+函数范围复核；不是编译器级重构证明",
+        "report": "/mnt/data/rebuild/replay-final/state/DoxygenUE/408bb258e2f626d748af/change-reports/5754d053754e20d46f30.json"
+      },
+      "validation": "passed",
+      "shorter_edit": "passed"
+    }
+  },
+  "bulk": {
+    "source_records": 4000,
+    "source_chars": 396670,
+    "preview_request_chars": 239,
+    "preview_response_chars": 5098,
+    "model_preview_rows": 20,
+    "unit": "characters, not model tokens"
+  },
+  "negative_control": {
+    "compile_only": "accepted inefficient scan",
+    "task_validation_exit": 2,
+    "task_output": "{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":9,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":0,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":17,\"world_membership_queries\":65536,\"selection_copies\":0,\"allocations\":0}],\"passed\":false}\nFAIL: GetSelectedCount must stay correct after selection changes and use zero world membership queries, zero selection copies, zero allocations. Existing API: Selection::GetSelectedEntitiesView().Num().\n"
+  },
+  "final_native_task_output": "{\"world_entities\":65536,\"cases\":[{\"expected\":3,\"actual\":3,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":9,\"actual\":9,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":0,\"actual\":0,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":1,\"actual\":1,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0},{\"expected\":17,\"actual\":17,\"world_membership_queries\":0,\"selection_copies\":0,\"allocations\":0}],\"passed\":true}\nA member declaration/definition compile and runtime assertions: PASS\n",
+  "status": "passed"
+}

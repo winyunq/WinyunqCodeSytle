@@ -1,0 +1,16 @@
+[
+  {
+    "UnitId": "marine",
+    "AdvisorId": "military",
+    "DisplayName": "陆战队员（导入）",
+    "HitPoints": 50,
+    "Text": "从源数据搬运的文本。"
+  },
+  {
+    "UnitId": "medic",
+    "AdvisorId": "military",
+    "DisplayName": "医疗兵",
+    "HitPoints": 60,
+    "Text": "来自源数据的新单位。"
+  }
+]

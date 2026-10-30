@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "rpc_requests": 15,
+  "tk_errors": [],
+  "gui": "Linux Tk automated callbacks, not human authentication",
+  "ue_editor_executed": false
+}

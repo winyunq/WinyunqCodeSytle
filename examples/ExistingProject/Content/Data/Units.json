@@ -1,0 +1,16 @@
+[
+  {
+    "Id": "marine",
+    "Advisor": "military",
+    "Name": "陆战队员",
+    "Health": 45,
+    "Description": "原有单位，保留此说明。"
+  },
+  {
+    "Id": "worker",
+    "Advisor": "civil",
+    "Name": "工人",
+    "Health": 30,
+    "Description": "未涉及的记录必须保留。"
+  }
+]

@@ -1,0 +1,22 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ACCEPTANCE_ZH</title><style>body{font-family:system-ui,"Microsoft YaHei",sans-serif;margin:0;color:#1f2937;background:#f4f6fa;line-height:1.75}main{max-width:1020px;margin:auto;background:white;padding:38px 50px 70px}nav{background:#152a40;color:white;padding:16px 30px}a{color:#146378}nav a{color:white;margin-right:24px}h1{font-size:28px;border-bottom:3px solid #146378;padding-bottom:18px}h2{margin-top:36px;font-size:22px}h3{font-size:18px}pre{overflow:auto;background:#eef3f7;padding:18px;border-left:4px solid #146378;font-size:14px;line-height:1.65}code{font-family:Consolas,monospace;font-size:0.91em}p code{background:#eef3f7;padding:2px 4px}table{border-collapse:collapse;width:100%;margin:18px 0;font-size:14px}th,td{border:1px solid #d4dde5;text-align:left;padding:10px;vertical-align:top}th{background:#eaf2f6}img{max-width:100%}.muted{color:#526577;font-size:14px}.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}.card{background:#eef3f7;padding:18px;border-radius:5px}@media(max-width:700px){main{padding:22px}.cards{grid-template-columns:1fr}table{font-size:12px}}</style><nav><a href="../index.html">UnrealEngineCPPCodingMCP 0.1.0</a><span>本地使用手册 · 无外部资源</span></nav><main><h1>可操作范围与本机验收</h1>
+<h2>当前闭环</h2>
+<table><tr><th>对象</th><th>观察</th><th>增改</th><th>明确删除</th><th>验证/恢复</th></tr><tr><td>已绑定JSON/CSV记录</td><td>搜索/结构/筛选行</td><td>主键upsert/本地文件映射</td><td>keys+人审具体计划</td><td>类型/引用/CAS/回读；文件备份、CAS恢复</td></tr><tr><td>支持范围内的C++/源码注释</td><td>Doxygen分层/目标原貌</td><td>局部编辑/普通CPP-H/include/注释字段</td><td>独立计划+人审</td><td>用户任务命令、失败源码回滚</td></tr><tr><td>UE DataTable</td><td>实际编辑器连接后导出</td><td>既有表全量合并写回</td><td>人审后删指定行</td><td>编辑器事务/保存/严格回读/失败恢复；本环境未UE实跑</td></tr><tr><td>UE模块、配置、其他资产</td><td>输入清单/文字证据</td><td>不开放通用改写</td><td>不开放</td><td>不能假装可完全操作</td></tr><tr><td>任意SQL/INI、蓝图图、二进制地图</td><td>路径发现，不解析其全部含义</td><td>不支持</td><td>不支持</td><td>不回退C++，报告具体缺少的适配</td></tr><tr><td>锁、授权、规则、批准</td><td>状态可读</td><td>关键授权仅用户端</td><td>不提供模型自解锁</td><td>同账号任意Shell不是隔离层</td></tr></table>
+<h2>本轮已执行的三个任务</h2>
+<h3>内容迁移</h3>
+<p>本地JSON/CSV的既有单位和顾问表；源文件是已导出的普通JSON，而不是实际星际地图。通过真实MCP导入：一条更新、一条新增，未提供的原记录完整保留，运行源码hash不变，再次导入unchanged。内容模式尝试新增C++管理器被拒绝。</p>
+<h3>复用现有选择系统</h3>
+<p>在便携原生C++测试替身中，选择数量依次改变3/9/0/1/17。测试实际结果、65536个世界实体的查询次数、复制次数及分配次数。直接使用现有view.Num成功；世界重扫、复制集合、静态旧缓存失败并回滚。保留负对照：只做编译时重扫实现可以通过。没有声称这些断言会自动生成或适用于全部UE代码。</p>
+<h3>扩展原责任系统</h3>
+<p><code>return x+0</code>缩短成功；只提交<code>A::ClampStep</code>的CPP定义，自动同步A.h且复用A.Normalize，真实编译和断言通过。不能外推为复杂模板/RPC/所有调用者重构都支持。</p>
+<p>详细请求在evidence/replay，窗口操作在evidence/gui。GUI由测试驱动操作真实窗口，不把脚本点击当作本人认证。</p>
+<h2>Windows / 真实 UE 本机需执行</h2>
+<p>先在版本控制干净的副本上工作，不直接套用演示profile到生产工程。</p>
+<p>1. 安装Python/Tk、选择真实Doxygen，运行GUI。核对四工具、项目根、profile和状态目录。Windows安装器不是本轮实测项目。</p>
+<p>2. 给既有DataTable声明真实Name及全部导出字段。连接编辑器，读取两条已存在行并核对UStruct。不存在/断开编辑器时必须明确报错。</p>
+<p>3. 更新一条现有行、增加一条真实允许的新行。核对省略行/字段、资源引用和游戏原消费者读取结果；再次导入不得产生新变化。</p>
+<p>4. 未保存资产或PIE中请求写入，应拒绝。另开窗口修改表之后，旧计划应拒绝。</p>
+<p>5. 模拟不可解析引用或错误类型，应拒绝而不是生成占位对象。模拟保存失败，核对回执与before.json；不允许编写C++补偿导入错误。</p>
+<p>6. 为真实源码维护profile接入UBT/UHT和相关任务验收。没有命令时只能说结构检查，不说编译通过。实际Codex连接同一入口，核对该宿主对单份structuredContent的支持；必要时选择单份text模式。</p>
+<p>7. 试独立Delete：没批准失败；GUI展示全量具体差异后批准才成功。修改profile/锁/源码后旧计划失效。锁不能靠scope/别名绕过。</p>
+<h2>不应据此得出的结论</h2>
+<p>本包没有跑完整UE项目、实际Codex宿主或Windows安装；没有导入用户的地图；未证明任意代码都可控，也未证明可以自动识别全部过度设计。可复现的改进是：原来缺失的已绑定数据路径可执行，错误域不能自升级，实际任务成本断言能约束提交。</p></main></html>
