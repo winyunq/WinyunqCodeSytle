@@ -68,11 +68,11 @@
     },
     {
       "path": "docs/WEBSITE_ZH.html",
-      "sha256": "0df93e6437379c17c29e6781a23bade87a255956c108dd23f8a1b11dd3d8d7e1"
+      "sha256": "4c5467a896e695244a7c2e7c7822f64b1758695f1601e451bf1ffa4d87f5b510"
     },
     {
       "path": "docs/WEBSITE_ZH.md",
-      "sha256": "e8b8868a4101eb98010ff83a580affce2585068cea0ef68047fd1d1c9cd90294"
+      "sha256": "159f37772846abd9e33441a0cad24abcad5453d0a730e65f092c16dcd4cf0e3a"
     },
     {
       "path": "doxygenue/__init__.py",
@@ -228,7 +228,7 @@
     },
     {
       "path": "evidence/WEBSITE-RESULTS.json",
-      "sha256": "6f5510cd7e6664dba49eec8757c3ce7714af5dc1fbad794f5602ece8a2fe650c"
+      "sha256": "3eb881ac78e97ce8c32a0395bae0a06070b04257078e4ccd4e1f17ba7b94df2e"
     },
     {
       "path": "examples/ExistingProject/Config/DefaultGame.ini",
@@ -332,11 +332,11 @@
     },
     {
       "path": "maintenance/web_assets/site.css",
-      "sha256": "f88839b64a2a2d6191b1d8ccb4628248ac7bf0f96ee4fb7daecf7c3d0008cae8"
+      "sha256": "f144ad38d6da89e82cd534379b6ba3e9723fe7e7d5bce771757119bbaa3b4cc4"
     },
     {
       "path": "maintenance/web_assets/site.js",
-      "sha256": "3e7d437c259557ea2c8bba4f3fc789230e202e7e40a391cfae14229656fc954b"
+      "sha256": "bed19288f56a82a0f7fa92efc02ed557723e0a85d4d5e2bb0171080b4adb564d"
     },
     {
       "path": "maintenance/website_translations.py",
@@ -344,7 +344,7 @@
     },
     {
       "path": "maintenance/website.py",
-      "sha256": "d1fd9cce8bae61a13313dc7aea85f77c3445bffaa095c1c6e17eaac9dc77411f"
+      "sha256": "7f13fc7c82271763cef513d1008133297025cbc0863d182a2c8430e7d365705a"
     },
     {
       "path": "NOTICE.md",

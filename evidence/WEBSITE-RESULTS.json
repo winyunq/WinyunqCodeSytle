@@ -37,5 +37,17 @@
         "active": 1857
       }
     ]
+  },
+  "website_layout": {
+    "reference": "https://dev.epicgames.com/documentation/en-us/unreal-engine/programming-with-cplusplus-in-unreal-engine",
+    "desktop_width": 1280,
+    "mobile_width": 390,
+    "checks": [
+      "Dark template and three columns",
+      "Page anchor navigation",
+      "Mobile menu opens",
+      "No horizontal overflow on mobile"
+    ],
+    "static_asset_content_hash": true
   }
 }

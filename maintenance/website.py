@@ -18,6 +18,7 @@ ASSETS = Path(__file__).parent / 'web_assets'
 UI = {
     'en': dict(start='Get started', reference='API reference', developer='Developer reference',
                search='Search this documentation', inputs='Inputs', outputs='Outputs',
+               contents='On this page', overview='Overview', menu='Contents', skip='Skip to content',
                returns='Returns', notes='Notes', warnings='Warnings', native='C++ declaration',
                tparams='Template parameters', return_values='Return values', exceptions='Exceptions',
                preconditions='Preconditions', postconditions='Postconditions', see='See also', enum_values='Values',
@@ -27,6 +28,7 @@ UI = {
                no_description='No description provided.', empty='No matching declarations in this section.'),
     'zh-CN': dict(start='开始使用', reference='接口参考', developer='开发者参考',
                   search='搜索文档', inputs='输入', outputs='输出', returns='返回值', notes='说明',
+                  contents='本页内容', overview='概述', menu='目录', skip='跳转到正文',
                   warnings='注意', native='C++ 声明', experimental='实验性', example='示例',
                   tparams='模板参数', return_values='返回值说明', exceptions='异常',
                   preconditions='前置条件', postconditions='后置条件', see='另请参阅', enum_values='枚举值',
@@ -214,14 +216,34 @@ def _page(config, groups, language, languages, current, content, search, version
     def label(g):
         return _label(g, 'title', language, source_language) or g['id']
     nav = '<a class="nav-home' + (' active' if current == 'index' else '') + '" href="index.html">' + words['start'] + '</a><div class="nav-caption">' + words['reference'] + '</div>'
-    nav += ''.join('<a class="nav-item' + (' active' if current == g['id'] else '') + '" href="' + g['id'] + '.html"><span>' + html.escape(label(g)) + '</span>' + ('<i>β</i>' if g.get('experimental') else '') + '</a>' for g in groups)
-    other = 'developer' if audience == 'user' else 'user'
-    if other in audiences:
-        nav += '<div class="nav-divider"></div><a class="nav-item" href="../../' + other + '/' + language + '/index.html">' + words[other] + ' ↗</a>'
+    entries = [row for row in search if row['group'] == current]
+    for group in groups:
+        selected = current == group['id']
+        link = '<a class="nav-item' + (' active' if selected else '') + '" href="' + group['id'] + '.html"><span>' + html.escape(label(group)) + '</span>' + ('<i>β</i>' if group.get('experimental') else '') + '</a>'
+        if selected and entries:
+            children = ''.join('<li><a href="#' + row['id'] + '">' + html.escape(row['title']) + '</a></li>' for row in entries)
+            nav += '<details class="nav-group" open><summary>' + link + '</summary><ul class="nav-symbols">' + children + '</ul></details>'
+        else:
+            nav += link
+    audience_links = ''.join('<a' + (' aria-current="page"' if view == audience else '') + ' href="../../' + view + '/' + language + '/index.html">' + words[view] + '</a>' for view in audiences)
     language_links = ''.join('<a' + (' aria-current="page"' if code == language else '') + ' href="../' + code + '/' + current + '.html">' + html.escape({'en':'English','zh-CN':'简体中文'}.get(code, code)) + '</a>' for code in languages)
     data = json.dumps(search, ensure_ascii=False).replace('<', '\\u003c').replace('>', '\\u003e').replace('&', '\\u0026')
     title = config.get('title', 'API Documentation')
-    return '<!doctype html><html lang="' + language + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' + html.escape(title) + ' · ' + html.escape(current) + '</title><link rel="stylesheet" href="../../assets/site.css"><script defer src="../../assets/site.js"></script></head><body><header><a class="brand" href="index.html"><span class="brand-mark">' + html.escape(title[:1]) + '</span>' + html.escape(title) + '</a><span class="version">' + html.escape(version) + '</span><nav class="languages">' + language_links + '</nav></header><aside class="sidebar"><label class="search"><span>⌕</span><input id="search" type="search" placeholder="' + words['search'] + '" aria-label="' + words['search'] + '"></label><div id="search-results" hidden></div><nav>' + nav + '</nav><footer>' + words[audience] + '<br>' + words['version'] + ' ' + html.escape(version) + '</footer></aside><main>' + content + '</main><script type="application/json" id="search-index">' + data + '</script></body></html>'
+    current_group = next((g for g in groups if g['id'] == current), None)
+    page_title = label(current_group) if current_group else words['start']
+    toc = '<a href="#overview">' + words['overview'] + '</a>'
+    if current == 'index':
+        toc += '<a href="#reference">' + words['reference'] + '</a>'
+    elif _label(current_group, 'example', language, source_language):
+        toc += '<a href="#example">' + words['example'] + '</a>'
+    toc += ''.join('<a href="#' + row['id'] + '">' + html.escape(row['title']) + '</a>' for row in entries)
+    asset_version = sha((ASSETS / 'site.css').read_bytes() + (ASSETS / 'site.js').read_bytes())[:12]
+    return f'''<!doctype html><html lang="{language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{html.escape(title)} · {html.escape(page_title)}</title><link rel="stylesheet" href="../../assets/site.css?v={asset_version}"><script defer src="../../assets/site.js?v={asset_version}"></script></head><body>
+<a class="skip-link" href="#main-content">{words['skip']}</a>
+<header><button class="menu-toggle" aria-controls="project-navigation" aria-expanded="false">☰ {words['menu']}</button><a class="brand" href="index.html"><span class="brand-mark">{html.escape(title[:1])}</span>{html.escape(title)}</a><nav class="header-nav">{audience_links}</nav><div class="header-search"><label class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="{words['search']}" aria-label="{words['search']}"></label><div id="search-results" hidden></div></div><nav class="languages">{language_links}</nav></header>
+<aside class="sidebar" id="project-navigation"><div class="sidebar-title">{html.escape(title)}</div><div class="version"><span>{words['version']}</span><strong>{html.escape(version)}</strong></div><nav aria-label="{words['menu']}">{nav}</nav><footer>{words[audience]}</footer></aside>
+<main id="main-content" tabindex="-1"><nav class="breadcrumbs" aria-label="{words['heading']}"><a href="index.html">{html.escape(title)}</a><span>/</span><span>{words[audience]}</span><span>/</span><span>{html.escape(page_title)}</span></nav>{content}</main>
+<aside class="page-toc"><nav aria-label="{words['contents']}"><h2>{words['contents']}</h2>{toc}</nav></aside><script type="application/json" id="search-index">{data}</script></body></html>'''
 
 
 def _groups(root, config, audience):
@@ -263,17 +285,17 @@ def _render(config, groups, records, output, languages, memories, localization, 
         search = [{key: r[key] for key in ('id', 'title', 'name', 'group', 'brief')} for r in rendered]
         pages = output / audience / language
         pages.mkdir(parents=True, exist_ok=True)
-        cards = ''.join('<a class="family-card" href="' + g['id'] + '.html"><span class="family-index">' + str(i+1).zfill(2) + '</span><h2>' + html.escape(_label(g, 'title', language, source_language) or g['id']) + '</h2><p>' + html.escape(_label(g, 'description', language, source_language)) + '</p><span class="card-link">' + words['reference'] + ' →</span></a>' for i, g in enumerate(groups))
+        cards = ''.join('<a class="family-card" href="' + g['id'] + '.html"><h2>' + html.escape(_label(g, 'title', language, source_language) or g['id']) + '</h2><p>' + html.escape(_label(g, 'description', language, source_language)) + '</p><span class="card-link">' + words['reference'] + ' →</span></a>' for g in groups)
         heading = _label(overview, 'heading', language, source_language) or config.get('title', words['heading'])
         subtitle = _label(overview, 'description', language, source_language) or words['subtitle']
-        content = '<section class="hero"><span class="eyebrow">' + words[audience] + '</span><h1>' + html.escape(heading) + '</h1><p>' + html.escape(subtitle) + '</p></section><h2 class="section-heading">' + words['intro'] + '</h2><div class="family-grid">' + cards + '</div>'
+        content = '<section class="hero" id="overview"><span class="eyebrow">' + words[audience] + '</span><h1>' + html.escape(heading) + '</h1><p>' + html.escape(subtitle) + '</p></section><h2 class="section-heading" id="reference">' + words['intro'] + '</h2><div class="family-grid">' + cards + '</div>'
         (pages / 'index.html').write_text(_page(config, groups, language, languages, 'index', content, search, version, audience, audiences), encoding='utf-8')
         for group in groups:
             title = _label(group, 'title', language, source_language) or group['id']
-            content = '<section class="page-heading"><span class="eyebrow">' + group['id'] + '</span><h1>' + html.escape(title) + '</h1><p>' + html.escape(_label(group, 'description', language, source_language)) + '</p>' + ('<span class="experimental">' + words['experimental'] + '</span>' if group.get('experimental') else '') + '</section>'
+            content = '<section class="page-heading" id="overview"><span class="eyebrow">' + group['id'] + '</span><h1>' + html.escape(title) + '</h1><p>' + html.escape(_label(group, 'description', language, source_language)) + '</p>' + ('<span class="experimental">' + words['experimental'] + '</span>' if group.get('experimental') else '') + '</section>'
             example = _label(group, 'example', language, source_language)
             if example:
-                content += '<section class="quick-start"><h2>' + words['example'] + '</h2><pre><code>' + html.escape(example) + '</code></pre></section>'
+                content += '<section class="quick-start" id="example"><h2>' + words['example'] + '</h2><pre><code>' + html.escape(example) + '</code></pre></section>'
             content += ''.join(r['html'] for r in rendered if r['group'] == group['id']) or '<p>' + words['empty'] + '</p>'
             (pages / (group['id'] + '.html')).write_text(_page(config, groups, language, languages, group['id'], content, search, version, audience, audiences), encoding='utf-8')
 
