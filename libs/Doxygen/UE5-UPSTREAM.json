@@ -1,0 +1,18 @@
+{
+  "repository": "https://github.com/doxygen/doxygen",
+  "tag": "Release_1_18_0",
+  "commit": "8e760943e5d9581a444cf327f43a0b4d20d29482",
+  "source_archive": "https://codeload.github.com/doxygen/doxygen/zip/8e760943e5d9581a444cf327f43a0b4d20d29482",
+  "configuration": "UNREAL_ENGINE_SUPPORT",
+  "changes": [
+    "src/config.xml",
+    "src/pre.l"
+  ],
+  "modified": "2026-10-31",
+  "runtime": {
+    "architecture": "Windows x64",
+    "archive": "doxygen-1.18.0-ue5-windows-x64.zip",
+    "archive_sha256": "3e21929ab504f1e22fb0c96328b0335eb52c04efa7e1a11108d3136d0d21ffab",
+    "executable_sha256": "4f20805649adcbd62c810cc076c739f52665a95d64858ec1a4ca04e86cc4741b"
+  }
+}

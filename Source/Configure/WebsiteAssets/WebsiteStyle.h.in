@@ -1,0 +1,4 @@
+#pragma once
+
+inline constexpr char WebsiteStyle[] = R"CODESTYLE_CSS(@WebsiteStyle@)CODESTYLE_CSS";
+inline constexpr char WebsiteScript[] = R"CODESTYLE_JS(@WebsiteScript@)CODESTYLE_JS";
